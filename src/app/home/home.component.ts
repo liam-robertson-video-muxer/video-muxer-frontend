@@ -1,30 +1,46 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AppService } from '../app.service';
 
 @Component({
-  selector: 'app-home',
+  selector: 'home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  myVideo: any;
-  filenames: string[] = [];
-  fileStatus = { status: '', requestType: '', percent: 0 };
+  selectedFile: any = null;
+  selectedFilename: string = "";
 
   constructor(
     private appService: AppService
-  ) { }
+    ) {}
+
 
   ngOnInit(): void {
-    this.appService.getVideo().subscribe(mp4 => {
-      let dataType = mp4.type;
-      let binaryData = [];
-      binaryData.push(mp4);
-      let videoEl = <HTMLVideoElement>document.getElementById("myVideoEl")
-      videoEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
-      document.body.appendChild(videoEl);
-    });
+    this.getVideo();
   }
 
-  
+
+  getVideo() {
+    this.appService.getVideo().subscribe(videoFile => {
+      const dataType = videoFile.type;
+      const binaryData = [];
+      binaryData.push(videoFile);
+      const videoElement = <HTMLVideoElement>document.getElementById("videoPlayer")
+      videoElement.src = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
+    });  
+  }
+
+  selectFile(event: any) {
+    this.selectedFile = event.target.files[0];
+    this.selectedFilename = this.selectedFile.name;
+  }
+
+   onUpload() {
+    this.appService.uploadFile(this.selectedFile).subscribe(responseCode => 
+      {
+        console.log(responseCode);
+      }
+    )
+  }
 }

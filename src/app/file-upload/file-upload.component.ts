@@ -1,5 +1,5 @@
 import { HttpClient, HttpEventType } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -11,7 +11,6 @@ export class FileUploadComponent{
 
   constructor(private http: HttpClient) {}
 
-
   @Input()
     requiredFileType: string | undefined;
 
@@ -19,7 +18,7 @@ export class FileUploadComponent{
     uploadProgress: any;
     uploadSub: any;
 
-  onFileSelected(event: any) {
+  onFileSelected(event: any) { 
     const file: File = event.target.files[0];
   
     if (file) {

@@ -7,8 +7,6 @@ import { finalize, Observable, Subscription } from 'rxjs';
 })
 export class AppService {
 
-  
-
   constructor(private http: HttpClient) {}
 
   getVideo(): Observable<any> {
@@ -16,5 +14,9 @@ export class AppService {
     return this.http.get("http://localhost:4200/api/final-video.mp4", {'headers': headers, responseType: 'blob'});
   }
 
-  
+  uploadFile(selectedFile: File): Observable<any> {
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    return this.http.post("/api/home/upload", formData, )
+  }
 }

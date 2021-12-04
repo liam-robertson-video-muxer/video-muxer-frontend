@@ -1,2 +1,34 @@
-<video type='video/mp4' id="myVideoEl" autoplay></video>
-<file-upload requiredFileType="video/mp4"></file-upload>
+<div class="upload-container">
+    <h1>Upload Your Animation!</h1>
+</div>
+
+<div class="video-container">
+    <video type='video/mp4' id="videoPlayer" controls autoplay></video>
+    <div class="controls">
+        <div class="orange-bar">
+            <div class="orange-juice"></div>
+        </div>
+        <div class="buttons">
+            <button id="play-pause"></button>
+        </div>
+    </div>
+</div>
+
+<div class="upload-container">
+    <div class="flex-container">
+        <input type="file" (change)="selectFile($event)" id="selectFile" #selectFileEl>
+        <div class="message-container">
+            {{ selectedFilename || "No file uploaded yet"}}
+        </div>
+        <div class="button-container">
+            <button mat-raised-button color="primary" type="button" (click)="selectFileEl.click()">
+                <mat-icon>attach_file</mat-icon>
+                Select File
+            </button>
+            <button mat-raised-button color="primary" type="button" (click)="onUpload()" >
+                <mat-icon>upload</mat-icon>
+                Upload</button>
+        </div>
+    </div>
+</div>
+<hr>  
