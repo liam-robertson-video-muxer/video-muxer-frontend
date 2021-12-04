@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable, Input } from '@angular/core';
+import { HttpClient, HttpEventType, HttpHeaders } from '@angular/common/http';
+import { finalize, Observable, Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppService {
+
+  
 
   constructor(private http: HttpClient) {}
 
@@ -13,4 +15,6 @@ export class AppService {
     const headers = new HttpHeaders({'Content-Type': 'video/mp4', 'Accept-Ranges':'bytes'});
     return this.http.get("http://localhost:4200/api/final-video.mp4", {'headers': headers, responseType: 'blob'});
   }
+
+  
 }

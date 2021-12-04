@@ -8,6 +8,8 @@ import { AppService } from '../app.service';
 })
 export class HomeComponent implements OnInit {
   myVideo: any;
+  filenames: string[] = [];
+  fileStatus = { status: '', requestType: '', percent: 0 };
 
   constructor(
     private appService: AppService
@@ -20,15 +22,9 @@ export class HomeComponent implements OnInit {
       binaryData.push(mp4);
       let videoEl = <HTMLVideoElement>document.getElementById("myVideoEl")
       videoEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
-      // let downloadLink = document.createElement('video');
-      // downloadLink.src = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
-      // console.log(downloadLink.src);
       document.body.appendChild(videoEl);
-      // if (filename)
-      //     downloadLink.setAttribute('download', filename);
-      // document.body.appendChild(downloadLink);
-      // downloadLink.click();
-      
     });
   }
+
+  
 }
