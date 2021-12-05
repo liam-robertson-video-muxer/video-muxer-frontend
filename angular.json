@@ -67,6 +67,10 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "host":"0.0.0.0",
+            "port":1738
+          },
           "configurations": {
             "production": {
               "browserTarget": "open-animation-frontend:build:production"
