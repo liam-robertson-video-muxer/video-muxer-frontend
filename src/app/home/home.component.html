@@ -2,12 +2,12 @@
 </div>
 
 <div class="video-container">
-    <video type='video/mp4' id="snippet-preview" controls></video>
-    <video type='video/mp4' id="tapestry" (timeupdate)="onTimeUpdate()" (click)="togglePlayPause()"></video>
+    <video type='video/mp4' id="snippet-video"></video>
+    <video type='video/mp4' id="tapestry" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
     <div class="controls">
         <div id="orange-bar" (click)="jumpToTime($event)">
             <div class="orange-juice" [style.width.%]="juiceWidth"></div>
-            <div id="draggable-snippet" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderDropped($event)" cdkDrag></div>
+            <div id="snippet-slider" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderMoved($event)" cdkDrag><mat-icon>drag_indicator</mat-icon></div>
         </div>
         <div class="buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
@@ -18,13 +18,13 @@
 
 <div class="upload-container">
     <div class="flex-container">
-        <input type="file" (change)="selectFile($event)" id="selectFile" #selectFileEl>
+        <input type="file" (change)="createSnippetFromFile($event)" id="selectFile" #selectFileEl>
         <div class="button-container">
             <button mat-raised-button color="primary" type="button" (click)="selectFileEl.click()">
                 <mat-icon>attach_file</mat-icon>
                 Select File
             </button>
-            <button mat-raised-button color="primary" type="button" (click)="onUpload()" >
+            <button mat-raised-button color="primary" type="button" >
                 <mat-icon>upload</mat-icon>
                 Upload</button>
         </div>

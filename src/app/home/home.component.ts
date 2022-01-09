@@ -1,6 +1,5 @@
-import { CdkDragDrop, CdkDragMove } from '@angular/cdk/drag-drop';
-import { AfterViewInit, Component, ElementRef, HostBinding, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { CdkDragMove } from '@angular/cdk/drag-drop';
+import { Component, OnInit } from '@angular/core';
 import { AppService } from '../app.service';
 
 @Component({
@@ -9,19 +8,12 @@ import { AppService } from '../app.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  selectedFile!: File;
   pausePlay: string = "play_arrow";
-  tapestry!: HTMLVideoElement;
-  juiceWidth: number = 0;
-  currentTime: number = 0;
-  duration!: number;
   timeMinsSecs: string = "00:00"
-  snippetBool: boolean = false;
-  snippetPlayBool: boolean = false;
-  previewSnippet!: HTMLVideoElement;
-  snippetSlider!: HTMLElement;
+  juiceWidth: number = 0;
   draggableSnippetStart: number = 0
   draggableSnippetEnd!: number;
+  tapestry!: HTMLVideoElement;     
 
   constructor(
     private appService: AppService
@@ -29,10 +21,20 @@ export class HomeComponent implements OnInit {
   
   ngOnInit(): void {
     this.tapestry = document.getElementById("tapestry") as HTMLVideoElement;
-    this.getVideo();
+    this.getTapestryVideo();
   }
 
-  getVideo() {
+  createSnippetFromFile(event: any) {
+    const selectedFile = event.target.files[0];   
+    const snippetVideo = document.getElementById("snippet-video") as HTMLVideoElement;
+    this.createSnippet(snippetVideo, selectedFile)
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  getTapestryVideo() { 
     this.appService.getVideo().subscribe(videoFile => {
       const dataType = videoFile.type;
       const binaryData = [];
@@ -41,38 +43,27 @@ export class HomeComponent implements OnInit {
     });  
   }
 
-  selectFile(event: any) {
-    this.selectedFile = event.target.files[0];    
-    this.previewSnippet = document.getElementById("snippet-preview") as HTMLVideoElement;
-    this.previewSnippet.style.display = "initial"
-    this.previewSnippet.src = window.URL.createObjectURL(this.selectedFile);
-    this.previewSnippet.onloadedmetadata = this.setSnippetWidth()
-    this.draggableSnippetEnd = this.previewSnippet.duration
-    this.snippetSlider = document.getElementById("draggable-snippet") as HTMLElement;
-    this.snippetSlider.style.width = "20px"
-    console.log(this.previewSnippet.duration);
-    
-  }
-  setSnippetWidth() {
-    this.draggableSnippetEnd = this.duration
-    console.log(this.draggableSnippetEnd);
-    
-    return null
+  createSnippet(snippetVideo: HTMLVideoElement, selectedFile: File) {
+    snippetVideo.style.display = "initial"
+    snippetVideo.src = window.URL.createObjectURL(selectedFile);
+    snippetVideo.onloadedmetadata = () => {
+      const snippetSlider = document.getElementById("snippet-slider") as HTMLElement;
+      snippetSlider.style.width = ((snippetVideo.duration / this.tapestry.duration) * 100).toString() + "%"
+      this.draggableSnippetEnd = snippetSlider.clientWidth
+    };    
   }
 
-   onUpload() {
-    this.appService.uploadFile(this.selectedFile).subscribe(responseCode => 
-      {
-        console.log(responseCode);
-      }
-    )
+  snippetOnCheck(snippetStart: number, snippetEnd: number, tapestry: HTMLVideoElement, snippet: HTMLVideoElement) {
+    if (tapestry.currentTime >= snippetStart && tapestry.currentTime <= snippetEnd) {
+      snippet.style.display = "initial"
+    } else {
+      snippet.style.display = "none"
+    }
   }
 
-  onTimeUpdate(){
+  updateTimeElements(){
     this.juiceWidth = (this.tapestry.currentTime / this.tapestry.duration) * 100;
-    this.currentTime = this.tapestry.currentTime
-    this.duration = this.tapestry.duration
-    this.timeMinsSecs = this.timeConversion(this.currentTime)
+    this.timeMinsSecs = this.timeConversion(this.tapestry.currentTime)
   }
 
   timeConversion(time: number) {
@@ -82,7 +73,7 @@ export class HomeComponent implements OnInit {
     return timeMinSecs
   }
 
-  togglePlayPause() {               
+  togglePlayPause() {   
     if (this.pausePlay == "play_arrow") {
       this.tapestry.play();
       this.pausePlay = "pause"
@@ -92,10 +83,9 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  sliderDropped(event: CdkDragMove<number>) {
+  sliderMoved(event: CdkDragMove<number>) {
     this.draggableSnippetStart += event.distance.x
     this.draggableSnippetEnd += event.distance.x
-    console.log(event.distance)
   }
 
   jumpToTime(event: { clientX: number; clientY: number; }) {
