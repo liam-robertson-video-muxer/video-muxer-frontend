@@ -11,9 +11,16 @@ export class HomeComponent implements OnInit {
   pausePlay: string = "play_arrow";
   timeMinsSecs: string = "00:00"
   juiceWidth: number = 0;
-  draggableSnippetStart: number = 0
-  draggableSnippetEnd!: number;
   tapestry!: HTMLVideoElement;     
+  snippetVideo!: HTMLVideoElement;
+  snippetStartPx: number = 0;
+  snippetEndPx!: number;
+  snippetStartTime!: number;
+  snippetEndTime!: number;
+  pxPerSecondConversion!: number;
+  barWidthPx!: number;
+  orangeBarPos!: number;
+  snippetWidthPx!: number;
 
   constructor(
     private appService: AppService
@@ -22,12 +29,17 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.tapestry = document.getElementById("tapestry") as HTMLVideoElement;
     this.getTapestryVideo();
+    this.barWidthPx = (document.getElementById("orange-bar") as HTMLElement).offsetWidth
+    this.tapestry.onloadedmetadata = () => {
+      this.pxPerSecondConversion = this.barWidthPx / this.tapestry.duration   
+    };   
   }
 
   createSnippetFromFile(event: any) {
     const selectedFile = event.target.files[0];   
-    const snippetVideo = document.getElementById("snippet-video") as HTMLVideoElement;
-    this.createSnippet(snippetVideo, selectedFile)
+    this.snippetVideo = document.getElementById("snippet-video") as HTMLVideoElement;
+    this.snippetVideo.muted = true
+    this.createSnippet(selectedFile)
   }
 
 
@@ -43,27 +55,65 @@ export class HomeComponent implements OnInit {
     });  
   }
 
-  createSnippet(snippetVideo: HTMLVideoElement, selectedFile: File) {
-    snippetVideo.style.display = "initial"
-    snippetVideo.src = window.URL.createObjectURL(selectedFile);
-    snippetVideo.onloadedmetadata = () => {
+  createSnippet(selectedFile: File) {
+    this.snippetVideo.style.display = "initial"
+    this.snippetVideo.src = window.URL.createObjectURL(selectedFile);
+    this.snippetVideo.onloadedmetadata = () => {
       const snippetSlider = document.getElementById("snippet-slider") as HTMLElement;
-      snippetSlider.style.width = ((snippetVideo.duration / this.tapestry.duration) * 100).toString() + "%"
-      this.draggableSnippetEnd = snippetSlider.clientWidth
+      snippetSlider.style.width = ((this.snippetVideo.duration / this.tapestry.duration) * 100).toString() + "%"
+      this.snippetEndPx = this.snippetVideo.duration * this.pxPerSecondConversion
+      console.log("snippet end px " + this.snippetEndPx);
     };    
   }
 
-  snippetOnCheck(snippetStart: number, snippetEnd: number, tapestry: HTMLVideoElement, snippet: HTMLVideoElement) {
-    if (tapestry.currentTime >= snippetStart && tapestry.currentTime <= snippetEnd) {
-      snippet.style.display = "initial"
+  // Moving slider
+  sliderMoved(event: CdkDragMove<number>) {
+    this.orangeBarPos = (document.getElementById("orange-bar") as HTMLElement).getBoundingClientRect().left
+    this.snippetWidthPx = (document.getElementById("snippet-slider") as HTMLElement).offsetWidth 
+    const sliderPos = (document.getElementById("snippet-slider") as HTMLElement).getBoundingClientRect().left
+    this.snippetStartPx = sliderPos - this.orangeBarPos
+    this.snippetEndPx = this.snippetStartPx + this.snippetWidthPx
+    this.snippetStartTime = this.snippetStartPx / this.pxPerSecondConversion
+    this.snippetEndTime = this.snippetEndPx / this.pxPerSecondConversion
+    this.snippetCheckOnMove()
+  }
+
+  snippetCheckOnMove() {
+    if (this.tapestry.currentTime >= this.snippetStartTime && this.tapestry.currentTime <= this.snippetEndTime) {
+      console.log("overlap");
+      this.snippetVideo.currentTime = this.tapestry.currentTime - this.snippetStartTime
+      this.snippetVideo.style.display = "initial"
+      this.snippetVideo.play()
     } else {
-      snippet.style.display = "none"
+      console.log("no overlap");
+      this.snippetVideo.style.display = "none"
+    }
+  }
+  ///////////////////////////////////
+
+  snippetCheckOnTime() {
+    let snippetBool = false
+    console.log("snippet check");
+    
+    if (this.tapestry.currentTime >= this.snippetStartTime && this.tapestry.currentTime <= this.snippetEndTime) {
+      if (!snippetBool) {
+        this.snippetVideo.currentTime = this.tapestry.currentTime - this.snippetStartTime
+      }
+      snippetBool = true
+      console.log("overlap");
+      this.snippetVideo.style.display = "initial"
+      this.snippetVideo.play()
+    } else {
+      snippetBool = false
+      console.log("no overlap");
+      this.snippetVideo.style.display = "none"
     }
   }
 
   updateTimeElements(){
     this.juiceWidth = (this.tapestry.currentTime / this.tapestry.duration) * 100;
     this.timeMinsSecs = this.timeConversion(this.tapestry.currentTime)
+    this.snippetCheckOnTime()
   }
 
   timeConversion(time: number) {
@@ -81,11 +131,6 @@ export class HomeComponent implements OnInit {
       this.tapestry.pause();
       this.pausePlay = "play_arrow"
     }
-  }
-
-  sliderMoved(event: CdkDragMove<number>) {
-    this.draggableSnippetStart += event.distance.x
-    this.draggableSnippetEnd += event.distance.x
   }
 
   jumpToTime(event: { clientX: number; clientY: number; }) {

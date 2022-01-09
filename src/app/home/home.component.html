@@ -7,7 +7,7 @@
     <div class="controls">
         <div id="orange-bar" (click)="jumpToTime($event)">
             <div class="orange-juice" [style.width.%]="juiceWidth"></div>
-            <div id="snippet-slider" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderMoved($event)" cdkDrag><mat-icon>drag_indicator</mat-icon></div>
+            <div id="snippet-slider" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderMoved($event)" cdkDrag></div>
         </div>
         <div class="buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>

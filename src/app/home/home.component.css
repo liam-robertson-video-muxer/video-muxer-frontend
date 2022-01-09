@@ -8,12 +8,6 @@ hr {
     border-top: 0.15em solid rgba(41, 41, 41, 0.747);
 }
 
-.message-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1em;
-}
-
 .button-container {
     width: 50%;
     display: flex;
@@ -73,7 +67,7 @@ video {
     cursor: pointer;
 }
 
-#draggable-snippet {
+#snippet-slider {
     grid-column: 1;
     grid-row: 1;
     background-color: purple;
@@ -101,6 +95,6 @@ video {
     cursor: pointer;
 }
 
-#snippet-preview {
+#snippet-video {
     display: none;
 }
