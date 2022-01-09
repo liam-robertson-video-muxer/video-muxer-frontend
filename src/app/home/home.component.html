@@ -2,12 +2,12 @@
 </div>
 
 <div class="video-container">
-    <video type='video/mp4' id="snippet-preview"></video>
+    <video type='video/mp4' id="snippet-preview" controls></video>
     <video type='video/mp4' id="tapestry" (timeupdate)="onTimeUpdate()" (click)="togglePlayPause()"></video>
     <div class="controls">
         <div id="orange-bar" (click)="jumpToTime($event)">
             <div class="orange-juice" [style.width.%]="juiceWidth"></div>
-            <div id="draggable-snippet" cdkDragLockAxis="x" cdkDrag></div>
+            <div id="draggable-snippet" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderDropped($event)" cdkDrag></div>
         </div>
         <div class="buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>

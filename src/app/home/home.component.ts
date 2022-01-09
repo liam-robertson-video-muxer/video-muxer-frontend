@@ -1,3 +1,4 @@
+import { CdkDragDrop, CdkDragMove } from '@angular/cdk/drag-drop';
 import { AfterViewInit, Component, ElementRef, HostBinding, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AppService } from '../app.service';
@@ -13,12 +14,14 @@ export class HomeComponent implements OnInit {
   tapestry!: HTMLVideoElement;
   juiceWidth: number = 0;
   currentTime: number = 0;
-  duration: number = 0;
+  duration!: number;
   timeMinsSecs: string = "00:00"
   snippetBool: boolean = false;
   snippetPlayBool: boolean = false;
   previewSnippet!: HTMLVideoElement;
   snippetSlider!: HTMLElement;
+  draggableSnippetStart: number = 0
+  draggableSnippetEnd!: number;
 
   constructor(
     private appService: AppService
@@ -42,10 +45,19 @@ export class HomeComponent implements OnInit {
     this.selectedFile = event.target.files[0];    
     this.previewSnippet = document.getElementById("snippet-preview") as HTMLVideoElement;
     this.previewSnippet.style.display = "initial"
-    console.log(this.previewSnippet);
     this.previewSnippet.src = window.URL.createObjectURL(this.selectedFile);
+    this.previewSnippet.onloadedmetadata = this.setSnippetWidth()
+    this.draggableSnippetEnd = this.previewSnippet.duration
     this.snippetSlider = document.getElementById("draggable-snippet") as HTMLElement;
     this.snippetSlider.style.width = "20px"
+    console.log(this.previewSnippet.duration);
+    
+  }
+  setSnippetWidth() {
+    this.draggableSnippetEnd = this.duration
+    console.log(this.draggableSnippetEnd);
+    
+    return null
   }
 
    onUpload() {
@@ -78,6 +90,12 @@ export class HomeComponent implements OnInit {
       this.tapestry.pause();
       this.pausePlay = "play_arrow"
     }
+  }
+
+  sliderDropped(event: CdkDragMove<number>) {
+    this.draggableSnippetStart += event.distance.x
+    this.draggableSnippetEnd += event.distance.x
+    console.log(event.distance)
   }
 
   jumpToTime(event: { clientX: number; clientY: number; }) {
