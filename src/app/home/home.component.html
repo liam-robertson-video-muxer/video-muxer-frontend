@@ -1,15 +1,17 @@
 <div class="upload-container">
-    <h1>Upload Your Animation!</h1>
 </div>
 
 <div class="video-container">
-    <video type='video/mp4' id="videoPlayer" controls autoplay></video>
+    <video type='video/mp4' id="snippet-preview"></video>
+    <video type='video/mp4' id="tapestry" (timeupdate)="onTimeUpdate()" (click)="togglePlayPause()"></video>
     <div class="controls">
-        <div class="orange-bar">
-            <div class="orange-juice"></div>
+        <div id="orange-bar" (click)="jumpToTime($event)">
+            <div class="orange-juice" [style.width.%]="juiceWidth"></div>
+            <div id="draggable-snippet" cdkDragLockAxis="x" cdkDrag></div>
         </div>
         <div class="buttons">
-            <button id="play-pause"></button>
+            <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
+            <p>{{timeMinsSecs}}</p>
         </div>
     </div>
 </div>
@@ -17,9 +19,6 @@
 <div class="upload-container">
     <div class="flex-container">
         <input type="file" (change)="selectFile($event)" id="selectFile" #selectFileEl>
-        <div class="message-container">
-            {{ selectedFilename || "No file uploaded yet"}}
-        </div>
         <div class="button-container">
             <button mat-raised-button color="primary" type="button" (click)="selectFileEl.click()">
                 <mat-icon>attach_file</mat-icon>

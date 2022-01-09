@@ -43,6 +43,7 @@ video {
 }
 
 .video-container {
+    position: relative;
     width: 60vw;
     height: 60vh;
     overflow: hidden;
@@ -55,50 +56,51 @@ video {
 
 .controls {
     display: flex;
-    position: relative;
+    position: absolute;
+    flex-direction: column;
     bottom: 0;
     width: 100%;
     flex-wrap: wrap;
-    background-color: rgba(0, 0, 0, 0.7);
     transform: translateY(100%) translateY(-5px);
     transition: all 0.2s;
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
-.buttons {
-    padding: 10px;
-}
-
-.buttons button {
-    background: none;
-    border: 0;
-    outline: 0;
+#orange-bar {
+    display: grid;
+    height: 10px;
+    width: 100%;
     cursor: pointer;
 }
 
-.buttons button:before {
-    content: "\f144";
-    font-family: "Font Awesome 5 Free";
-    width: 30px;
-    height: 30px;
-    display: inline-block;
-    font-size: 28px;
-    color: #fff;
-    -webkit-font-smoothing: antialiased;
-}
-
-.buttons button.pause:before {
-    content: "\f28b";
-}
-
-.orange-bar {
-    height: 10px;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #000;
+#draggable-snippet {
+    grid-column: 1;
+    grid-row: 1;
+    background-color: purple;
+    width: 0px;
+    height: 20px;
 }
 
 .orange-juice {
-    height: 10px;
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
     background-color: orangered;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+
+.buttons mat-icon {
+    margin: 20px;
+    transform: scale(2);
+    cursor: pointer;
+}
+
+#snippet-preview {
+    display: none;
 }
