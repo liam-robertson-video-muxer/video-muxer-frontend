@@ -16,18 +16,31 @@
     </div>
 </div>
 
-<div class="upload-container">
-    <div class="flex-container">
-        <input type="file" (change)="createSnippetFromFile($event)" id="selectFile" #selectFileEl>
-        <div class="button-container">
-            <button mat-raised-button color="primary" type="button" (click)="selectFileEl.click()">
-                <mat-icon>attach_file</mat-icon>
-                Select File
-            </button>
-            <button mat-raised-button color="primary" type="button" >
-                <mat-icon>upload</mat-icon>
-                Upload</button>
+<div id="primary-container">
+    <div class="sections-container">
+        <div class="section-button" id="upload-button" (click)="sectionSelect('upload')">Upload</div>
+        <div class="section-button" id="browse-button" (click)="sectionSelect('browse')">Browse</div>
+        <div class="section-button" id="comments-button" (click)="sectionSelect('comments')">Comments</div>
+    </div>  
+    <hr>  
+    <div *ngIf="sectionHide == 'upload'">
+        <div class="upload-container">
+            <div class="flex-container">
+                <input type="file" (change)="createSnippetFromFile($event)" id="selectFile" #selectFileEl>
+                    <div class="button-container">
+                        <button mat-raised-button color="primary" type="button" (click)="selectFileEl.click()">
+                            <mat-icon>attach_file</mat-icon>
+                            Select File
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
+    <div *ngIf="sectionHide == 'browse'"></div>
+    <div *ngIf="sectionHide == 'comments'"></div>
+
+        
+    <div id="snippet-container">
+
     </div>
 </div>
-<hr>  

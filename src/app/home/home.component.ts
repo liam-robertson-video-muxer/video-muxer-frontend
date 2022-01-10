@@ -1,6 +1,7 @@
 import { CdkDragMove } from '@angular/cdk/drag-drop';
 import { Component, OnInit } from '@angular/core';
 import { AppService } from '../app.service';
+import { Snippet } from '../models/Snippet.model';
 
 @Component({
   selector: 'home',
@@ -21,14 +22,18 @@ export class HomeComponent implements OnInit {
   barWidthPx!: number;
   orangeBarPos!: number;
   snippetWidthPx!: number;
+  sectionHide: string = "browse"
 
   constructor(
     private appService: AppService
     ) {}
   
   ngOnInit(): void {
+    const browseButton: HTMLElement = document.getElementById("browse-button") as HTMLElement
+    browseButton.click()
     this.tapestry = document.getElementById("tapestry") as HTMLVideoElement;
     this.getTapestryVideo();
+    this.getSnippets();
     this.barWidthPx = (document.getElementById("orange-bar") as HTMLElement).offsetWidth
     this.tapestry.onloadedmetadata = () => {
       this.pxPerSecondConversion = this.barWidthPx / this.tapestry.duration   
@@ -47,12 +52,36 @@ export class HomeComponent implements OnInit {
 
 
   getTapestryVideo() { 
-    this.appService.getVideo().subscribe(videoFile => {
+    this.appService.getTapestry().subscribe(videoFile => {
       const dataType = videoFile.type;
       const binaryData = [];
       binaryData.push(videoFile);
       this.tapestry.src = window.URL.createObjectURL(new Blob(binaryData, {type: dataType}));
     });  
+  }
+
+  getSnippets() { 
+    this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {
+      snippetList.map((snippet: Snippet) => {
+        const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
+        const binaryData = [];
+        binaryData.push(blobPart);
+        // this.tapestry.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
+      })
+    });  
+  }
+
+  sectionSelect(sectionName: string) {
+    const sectionNames: string[] = ["upload", "browse", "comments"]
+    this.sectionHide = sectionName
+    sectionNames.map(currentSection => {
+      const currentButton: HTMLElement = document.getElementById(currentSection + "-button") as HTMLElement
+      if (sectionName == currentSection) {
+        currentButton.style.backgroundColor = "rgba(173, 173, 173, 0.63)"
+      } else {
+        currentButton.style.backgroundColor = "rgba(230, 230, 230, 0.63)"
+      }
+    })
   }
 
   createSnippet(selectedFile: File) {
@@ -62,7 +91,6 @@ export class HomeComponent implements OnInit {
       const snippetSlider = document.getElementById("snippet-slider") as HTMLElement;
       snippetSlider.style.width = ((this.snippetVideo.duration / this.tapestry.duration) * 100).toString() + "%"
       this.snippetEndPx = this.snippetVideo.duration * this.pxPerSecondConversion
-      console.log("snippet end px " + this.snippetEndPx);
     };    
   }
 
@@ -80,12 +108,10 @@ export class HomeComponent implements OnInit {
 
   snippetCheckOnMove() {
     if (this.tapestry.currentTime >= this.snippetStartTime && this.tapestry.currentTime <= this.snippetEndTime) {
-      console.log("overlap");
       this.snippetVideo.currentTime = this.tapestry.currentTime - this.snippetStartTime
       this.snippetVideo.style.display = "initial"
       this.snippetVideo.play()
     } else {
-      console.log("no overlap");
       this.snippetVideo.style.display = "none"
     }
   }
@@ -93,19 +119,16 @@ export class HomeComponent implements OnInit {
 
   snippetCheckOnTime() {
     let snippetBool = false
-    console.log("snippet check");
     
     if (this.tapestry.currentTime >= this.snippetStartTime && this.tapestry.currentTime <= this.snippetEndTime) {
       if (!snippetBool) {
         this.snippetVideo.currentTime = this.tapestry.currentTime - this.snippetStartTime
       }
       snippetBool = true
-      console.log("overlap");
       this.snippetVideo.style.display = "initial"
       this.snippetVideo.play()
     } else {
       snippetBool = false
-      console.log("no overlap");
       this.snippetVideo.style.display = "none"
     }
   }
