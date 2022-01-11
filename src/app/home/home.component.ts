@@ -51,7 +51,8 @@ export class HomeComponent implements OnInit {
   getSnippets() {
     this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {
       this.snippetList = snippetList
-      this.createSnippetTimeline(snippetList)})
+      // this.createSnippetTimeline(snippetList)
+    })
   }
 
   getTapestryVideo() { 
@@ -65,32 +66,6 @@ export class HomeComponent implements OnInit {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  createSnippetTimeline(snippetList: Snippet[]) {
-    snippetList.map((snippet: Snippet) => {
-      const snippetIndex = this.snippetList.indexOf(snippet)
-      const snippetWidth = (this.snippetList[snippetIndex].timeEnd - this.snippetList[snippetIndex].timeStart) * this.pxPerSecondConversion
-      const snippetDiv = document.getElementById('snippet ' + snippetIndex) as HTMLElement
-      snippetDiv.style.width = snippetWidth.toString() + "px"
-    })
-  }
-
-  // createSnippetTimeline(snippetList: Snippet[]) {
-  //   snippetList.map((snippet: Snippet) => {
-  //     const snippetWidth = (snippet.timeEnd - snippet.timeStart) * this.pxPerSecondConversion
-  //     const parentDiv = document.getElementById("browse-section") as HTMLElement
-  //     const snippetDiv = document.createElement('div');
-  //     parentDiv?.appendChild(snippetDiv)
-  //     snippetDiv.setAttribute("id", "test");
-  //     snippetDiv.setAttribute("class", "snippet-bar");
-  //     snippetDiv.style.width = snippetWidth.toString() + "px"
-  //     snippetDiv.style.height = "20px"
-  //     snippetDiv.style.margin = "10px 0"
-  //     snippetDiv.style.borderRadius = "10px"
-  //     snippetDiv.style.marginLeft  = (snippet.timeStart * this.pxPerSecondConversion).toString() + "px"
-  //     snippetDiv.style.backgroundColor = "red"
-  //   })
-  // }
 
   // getSnippets() { 
   //   this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {

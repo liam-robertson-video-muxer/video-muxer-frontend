@@ -37,7 +37,11 @@
             </div>
         </div>
     <div id="browse-section" *ngIf="sectionHide == 'browse'">
-        <div class="snippet-bar" *ngFor="let snippet of snippetList; let i = index" id="{{'snippet ' + i}}"></div>
+        <div 
+        class="snippet-bar" *ngFor="let snippet of snippetList; let i = index" 
+        [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" 
+        [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)"
+        ></div>
     </div>
     <div *ngIf="sectionHide == 'comments'"></div>
 
