@@ -23,6 +23,7 @@ export class HomeComponent implements OnInit {
   orangeBarPos!: number;
   snippetWidthPx!: number;
   sectionHide: string = "browse"
+  snippetList!: Snippet[];
 
   constructor(
     private appService: AppService
@@ -47,9 +48,11 @@ export class HomeComponent implements OnInit {
     this.createSnippet(selectedFile)
   }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  getSnippets() {
+    this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {
+      this.snippetList = snippetList
+      this.createSnippetTimeline(snippetList)})
+  }
 
   getTapestryVideo() { 
     this.appService.getTapestry().subscribe(videoFile => {
@@ -60,16 +63,45 @@ export class HomeComponent implements OnInit {
     });  
   }
 
-  getSnippets() { 
-    this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {
-      snippetList.map((snippet: Snippet) => {
-        const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
-        const binaryData = [];
-        binaryData.push(blobPart);
-        // this.tapestry.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
-      })
-    });  
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  createSnippetTimeline(snippetList: Snippet[]) {
+    snippetList.map((snippet: Snippet) => {
+      const snippetIndex = this.snippetList.indexOf(snippet)
+      const snippetWidth = (this.snippetList[snippetIndex].timeEnd - this.snippetList[snippetIndex].timeStart) * this.pxPerSecondConversion
+      const snippetDiv = document.getElementById('snippet ' + snippetIndex) as HTMLElement
+      snippetDiv.style.width = snippetWidth.toString() + "px"
+    })
   }
+
+  // createSnippetTimeline(snippetList: Snippet[]) {
+  //   snippetList.map((snippet: Snippet) => {
+  //     const snippetWidth = (snippet.timeEnd - snippet.timeStart) * this.pxPerSecondConversion
+  //     const parentDiv = document.getElementById("browse-section") as HTMLElement
+  //     const snippetDiv = document.createElement('div');
+  //     parentDiv?.appendChild(snippetDiv)
+  //     snippetDiv.setAttribute("id", "test");
+  //     snippetDiv.setAttribute("class", "snippet-bar");
+  //     snippetDiv.style.width = snippetWidth.toString() + "px"
+  //     snippetDiv.style.height = "20px"
+  //     snippetDiv.style.margin = "10px 0"
+  //     snippetDiv.style.borderRadius = "10px"
+  //     snippetDiv.style.marginLeft  = (snippet.timeStart * this.pxPerSecondConversion).toString() + "px"
+  //     snippetDiv.style.backgroundColor = "red"
+  //   })
+  // }
+
+  // getSnippets() { 
+  //   this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {
+  //     snippetList.map((snippet: Snippet) => {
+  //       const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
+  //       const binaryData = [];
+  //       binaryData.push(blobPart);
+  //       // this.tapestry.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
+  //     })
+  //   });  
+  // }
 
   sectionSelect(sectionName: string) {
     const sectionNames: string[] = ["upload", "browse", "comments"]

@@ -36,7 +36,9 @@
                 </div>
             </div>
         </div>
-    <div *ngIf="sectionHide == 'browse'"></div>
+    <div id="browse-section" *ngIf="sectionHide == 'browse'">
+        <div class="snippet-bar" *ngFor="let snippet of snippetList; let i = index" id="{{'snippet ' + i}}"></div>
+    </div>
     <div *ngIf="sectionHide == 'comments'"></div>
 
         
