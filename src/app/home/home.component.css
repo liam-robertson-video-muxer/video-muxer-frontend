@@ -60,7 +60,7 @@ video {
     margin: auto;
 }
 
-.video-container {
+#video-container {
     position: relative;
     width: 60vw;
     height: 60vh;
@@ -68,7 +68,7 @@ video {
     background-color: black;
 }
 
-.video-container:hover .controls {
+#video-container:hover .controls {
     transform: translateY(0);
 }
 
@@ -104,11 +104,19 @@ video {
     cursor: pointer;
 }
 
-#snippet-slider {
+.snippet-slider {
     grid-column: 1;
     grid-row: 1;
     background-color: purple;
-    width: 0px;
+    height: 20px;
+    width: 0;
+}
+
+.snippet-slider1 {
+    grid-column: 1;
+    grid-row: 1;
+    width: 20px;
+    background-color: green;
     height: 20px;
 }
 

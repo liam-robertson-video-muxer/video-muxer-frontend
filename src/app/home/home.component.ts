@@ -24,6 +24,7 @@ export class HomeComponent implements OnInit {
   snippetWidthPx!: number;
   sectionHide: string = "browse"
   snippetList!: Snippet[];
+  selectedSnippetList: Snippet[] = []
 
   constructor(
     private appService: AppService
@@ -77,6 +78,27 @@ export class HomeComponent implements OnInit {
   //     })
   //   });  
   // }
+
+  loadSnippet(snippet: Snippet) {
+    console.log(snippet);
+    
+    this.selectedSnippetList.push(snippet)
+    const snippetVideoDiv = document.getElementById("snippet-video") as HTMLVideoElement;
+    const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
+    const binaryData = [];
+    binaryData.push(blobPart);
+    snippetVideoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
+
+
+    // snippetVideoDiv.onloadedmetadata = () => {
+    //   const snippetContainer = document.getElementById("orange-bar") as HTMLElement;
+    //   const snippetSlider = document.createElement("div") as HTMLElement;
+    //   snippetSlider.id = "snippet-slider" + snippet.id.toString()
+    //   snippetSlider.style.width = ((snippet.timeStart / this.tapestry.duration) * 100).toString() + "%"
+    //   snippetSlider.style.width = ((snippet.timeStart / this.tapestry.duration) * 100).toString() + "%"
+    //   snippetSlider.style.marginLeft = (snippet.timeStart * this.pxPerSecondConversion).toString() + "px"
+    // };    
+  }
 
   sectionSelect(sectionName: string) {
     const sectionNames: string[] = ["upload", "browse", "comments"]

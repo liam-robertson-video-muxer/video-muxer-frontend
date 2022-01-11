@@ -1,13 +1,18 @@
 <div class="upload-container">
 </div>
 
-<div class="video-container">
+<div id="video-container">
     <video type='video/mp4' id="snippet-video"></video>
     <video type='video/mp4' id="tapestry" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
     <div class="controls">
         <div id="orange-bar" (click)="jumpToTime($event)">
+            <div class="snippet-slider" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderMoved($event)" cdkDrag></div>
+            <div class="snippet-slider1" *ngFor="let snippet of selectedSnippetList; let i = index"
+            [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" 
+            [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)">
+
             <div class="orange-juice" [style.width.%]="juiceWidth"></div>
-            <div id="snippet-slider" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderMoved($event)" cdkDrag></div>
+        </div>
         </div>
         <div class="buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
@@ -41,6 +46,7 @@
         class="snippet-bar" *ngFor="let snippet of snippetList; let i = index" 
         [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" 
         [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)"
+        (click)="loadSnippet(snippet)"
         ></div>
     </div>
     <div *ngIf="sectionHide == 'comments'"></div>
