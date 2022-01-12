@@ -25,6 +25,8 @@ export class HomeComponent implements OnInit {
   sectionHide: string = "browse"
   snippetList!: Snippet[];
   selectedSnippetList: Snippet[] = []
+  previewSnippetOn: boolean = false;
+  value = 0;
 
   constructor(
     private appService: AppService
@@ -36,16 +38,21 @@ export class HomeComponent implements OnInit {
     this.tapestry = document.getElementById("tapestry") as HTMLVideoElement;
     this.getTapestryVideo();
     this.getSnippets();
-    this.barWidthPx = (document.getElementById("orange-bar") as HTMLElement).offsetWidth
+    this.barWidthPx = (document.getElementById("slider-container") as HTMLElement).offsetWidth
     this.tapestry.onloadedmetadata = () => {
       this.pxPerSecondConversion = this.barWidthPx / this.tapestry.duration   
     };   
+  }
+
+  dragging(event: DragEvent) {
+    alert("dfdfssa");
   }
 
   createSnippetFromFile(event: any) {
     const selectedFile = event.target.files[0];   
     this.snippetVideo = document.getElementById("snippet-video") as HTMLVideoElement;
     this.snippetVideo.muted = true
+    this.previewSnippetOn = true
     this.createSnippet(selectedFile)
   }
 
@@ -117,17 +124,25 @@ export class HomeComponent implements OnInit {
     this.snippetVideo.style.display = "initial"
     this.snippetVideo.src = window.URL.createObjectURL(selectedFile);
     this.snippetVideo.onloadedmetadata = () => {
-      const snippetSlider = document.getElementById("snippet-slider") as HTMLElement;
+      const snippetSlider = document.getElementById("snippet-moving-slider") as HTMLElement;
       snippetSlider.style.width = ((this.snippetVideo.duration / this.tapestry.duration) * 100).toString() + "%"
       this.snippetEndPx = this.snippetVideo.duration * this.pxPerSecondConversion
     };    
   }
 
+  dragVideo(event: any) {    
+    // this.orangeBarPos = (document.getElementById("orange-bar") as HTMLElement).getBoundingClientRect().left
+    // this.snippetWidthPx = (document.getElementById("snippet-slider") as HTMLElement).offsetWidth 
+    // const sliderPos = (document.getElementById("snippet-slider") as HTMLElement).getBoundingClientRect().left
+    // this.snippetStartPx = sliderPos - this.orangeBarPos
+    alert("hi")
+  }
+
   // Moving slider
-  sliderMoved(event: CdkDragMove<number>) {
-    this.orangeBarPos = (document.getElementById("orange-bar") as HTMLElement).getBoundingClientRect().left
-    this.snippetWidthPx = (document.getElementById("snippet-slider") as HTMLElement).offsetWidth 
-    const sliderPos = (document.getElementById("snippet-slider") as HTMLElement).getBoundingClientRect().left
+  sliderMoved(event: any) {
+    this.orangeBarPos = (document.getElementById("slider-container") as HTMLElement).getBoundingClientRect().left
+    this.snippetWidthPx = (document.getElementById("snippet-moving-slider") as HTMLElement).offsetWidth 
+    const sliderPos = (document.getElementById("snippet-moving-slider") as HTMLElement).getBoundingClientRect().left
     this.snippetStartPx = sliderPos - this.orangeBarPos
     this.snippetEndPx = this.snippetStartPx + this.snippetWidthPx
     this.snippetStartTime = this.snippetStartPx / this.pxPerSecondConversion
@@ -149,21 +164,26 @@ export class HomeComponent implements OnInit {
   snippetCheckOnTime() {
     let snippetBool = false
     
-    if (this.tapestry.currentTime >= this.snippetStartTime && this.tapestry.currentTime <= this.snippetEndTime) {
-      if (!snippetBool) {
-        this.snippetVideo.currentTime = this.tapestry.currentTime - this.snippetStartTime
+    if (this.previewSnippetOn) {
+      if (this.tapestry.currentTime >= this.snippetStartTime && this.tapestry.currentTime <= this.snippetEndTime) {
+        if (!snippetBool) {
+          this.snippetVideo.currentTime = this.tapestry.currentTime - this.snippetStartTime
+        }
+        snippetBool = true
+        this.snippetVideo.style.display = "initial"
+        this.snippetVideo.play()
+      } else {
+        snippetBool = false
+        this.snippetVideo.style.display = "none"
       }
-      snippetBool = true
-      this.snippetVideo.style.display = "initial"
-      this.snippetVideo.play()
-    } else {
-      snippetBool = false
-      this.snippetVideo.style.display = "none"
     }
+    
   }
 
   updateTimeElements(){
-    this.juiceWidth = (this.tapestry.currentTime / this.tapestry.duration) * 100;
+    console.log(this.juiceWidth);
+    
+    this.juiceWidth = this.tapestry.currentTime * this.pxPerSecondConversion;
     this.timeMinsSecs = this.timeConversion(this.tapestry.currentTime)
     this.snippetCheckOnTime()
   }
@@ -186,7 +206,7 @@ export class HomeComponent implements OnInit {
   }
 
   jumpToTime(event: { clientX: number; clientY: number; }) {
-    const orangeBarEl = document.getElementById("orange-bar") as HTMLElement;
+    const orangeBarEl = document.getElementById("slider-container") as HTMLElement;
     const startXCoord = orangeBarEl.getBoundingClientRect().left
     const endXCoord = orangeBarEl.getBoundingClientRect().right - startXCoord
     const currentXCoord = event.clientX - startXCoord

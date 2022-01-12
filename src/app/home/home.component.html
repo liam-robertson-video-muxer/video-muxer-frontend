@@ -5,16 +5,15 @@
     <video type='video/mp4' id="snippet-video"></video>
     <video type='video/mp4' id="tapestry" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
     <div class="controls">
-        <div id="orange-bar" (click)="jumpToTime($event)">
-            <div class="snippet-slider" cdkDragLockAxis="x" cdkDragBoundary="#orange-bar" (cdkDragMoved)="sliderMoved($event)" cdkDrag></div>
-            <div class="snippet-slider1" *ngFor="let snippet of selectedSnippetList; let i = index"
-            [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" 
-            [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)">
-
-            <div class="orange-juice" [style.width.%]="juiceWidth"></div>
+        <div id="slider-container" (click)="jumpToTime($event)" (drag)="dragVideo($event)">
+            <mat-slider id="main-slider" tickInterval="auto" min="1" max="100" [value]="(tapestry.currentTime / tapestry.duration) * 100"></mat-slider>
+            <!-- <mat-slider min="1" step=0.1 max="tapestry.duration" aria-label="unit(s)"></mat-slider> -->
+            <!-- <input type="range" min="0" max="tapestry.duration" value="0"> -->
+            <!-- <div class="snippet-moving-slider"  cdkDragLockAxis="x" (cdkDragMoved)="sliderMoved($event)" cdkDrag></div> -->
+            <!-- <div id="orange-juice" [style.width.px]="juiceWidth"></div> -->
+            <!-- <div class="snippet-slider" *ngFor="let snippet of selectedSnippetList" [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)"></div> -->
         </div>
-        </div>
-        <div class="buttons">
+        <div id="play-buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
             <p>{{timeMinsSecs}}</p>
         </div>

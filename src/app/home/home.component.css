@@ -97,14 +97,15 @@ video {
     background-color: rgba(0, 0, 0, 0.7);
 }
 
-#orange-bar {
+#slider-container {
     display: grid;
     height: 10px;
     width: 100%;
     cursor: pointer;
 }
 
-.snippet-slider {
+.snippet-moving-slider {
+    display: none;
     grid-column: 1;
     grid-row: 1;
     background-color: purple;
@@ -112,31 +113,38 @@ video {
     width: 0;
 }
 
-.snippet-slider1 {
+.snippet-slider {
     grid-column: 1;
     grid-row: 1;
-    width: 20px;
     background-color: green;
     height: 20px;
 }
 
-.orange-juice {
+#orange-juice {
     grid-column: 1;
     grid-row: 1;
     height: 100%;
     background-color: orangered;
 }
 
-.buttons {
+::ng-deep .mat-accent .mat-slider-thumb {
+    background-color: red;
+} 
+
+::ng-deep .mat-accent .mat-slider-track-fill {
+    background-color: red;
+} 
+
+#play-buttons {
     display: flex;
     align-items: center;
     color: white;
 }
 
 
-.buttons mat-icon {
-    margin: 20px;
-    transform: scale(2);
+#play-buttons mat-icon {
+    margin: 35px 30px 20px 30px;
+    transform: scale(1.5);
     cursor: pointer;
 }
 
