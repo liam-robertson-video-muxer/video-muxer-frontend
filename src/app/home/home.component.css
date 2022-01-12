@@ -68,18 +68,23 @@ video {
     background-color: black;
 }
 
+.snippet-pool-el {
+    height: 5px;
+    background-color: red;
+}
+
 #video-container:hover .controls {
     transform: translateY(0);
 }
 
-.snippet-bar {
+.snippet-timeline-bar {
     height: 20px;
     margin: 10px 0;
     border-radius: 10px;
     background-color: red;
 }
 
-.snippet-bar:hover {
+.snippet-timeline-bar:hover {
     cursor: pointer;
     background-color: purple;
 }
@@ -125,6 +130,10 @@ video {
     grid-row: 1;
     height: 100%;
     background-color: orangered;
+}
+
+matt-slider {
+    padding-bottom: 50px;
 }
 
 ::ng-deep .mat-accent .mat-slider-thumb {

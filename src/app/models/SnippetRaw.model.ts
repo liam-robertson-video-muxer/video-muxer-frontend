@@ -1,12 +1,11 @@
-export interface Snippet {
+export interface SnippetRaw {
     id: number;
     videoStream: ArrayBuffer;
     user: string;
     videoType: string;
-    timeStartPos: number;
-    timeEndPos: number;
-    durationWidth: number;
+    timeStart: number;
+    timeEnd: number;
+    duration: number;
     upvote: number;
     downvote: number;
-    visible: boolean;
-}
+ }

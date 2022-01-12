@@ -2,17 +2,22 @@
 </div>
 
 <div id="video-container">
-    <video type='video/mp4' id="snippet-video"></video>
-    <video type='video/mp4' id="tapestry" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
+    <video type='video/mp4' id="snippet-videoEl" [style.display]="snippetVidDisplayType"></video>
+    <video type='video/mp4' id="tapestry-videoEl" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
     <div class="controls">
-        <div id="slider-container" (click)="jumpToTime($event)" (drag)="dragVideo($event)">
-            <mat-slider id="main-slider" tickInterval="auto" min="1" max="100" [value]="(tapestry.currentTime / tapestry.duration) * 100"></mat-slider>
+        <div id="slider-container">
+            <mat-slider id="main-slider" min="1" max="100" [value]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100"
+            (click)="jumpToTimeClick($event.clientX)"></mat-slider>
+            <div id="snippet-pool-container" *ngFor="let snippet of snippetPool">
+                <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.timeStartPos" [style.margin-left.%]="snippet.timeStartPos"></div>
+            </div>
+
             <!-- <mat-slider min="1" step=0.1 max="tapestry.duration" aria-label="unit(s)"></mat-slider> -->
             <!-- <input type="range" min="0" max="tapestry.duration" value="0"> -->
             <!-- <div class="snippet-moving-slider"  cdkDragLockAxis="x" (cdkDragMoved)="sliderMoved($event)" cdkDrag></div> -->
             <!-- <div id="orange-juice" [style.width.px]="juiceWidth"></div> -->
-            <!-- <div class="snippet-slider" *ngFor="let snippet of selectedSnippetList" [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)"></div> -->
         </div>
+        
         <div id="play-buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
             <p>{{timeMinsSecs}}</p>
@@ -42,10 +47,11 @@
         </div>
     <div id="browse-section" *ngIf="sectionHide == 'browse'">
         <div 
-        class="snippet-bar" *ngFor="let snippet of snippetList; let i = index" 
-        [style.width.px]="(snippet.timeEnd - snippet.timeStart) * pxPerSecondConversion" 
-        [style.margin-left.px]="(snippet.timeStart * pxPerSecondConversion)"
-        (click)="loadSnippet(snippet)"
+        *ngFor="let snippet of snippetList" 
+        class="snippet-timeline-bar" [attr.id]="'snippet-timeline-' + snippet.id"
+        [style.width.%]="snippet.durationWidth" 
+        [style.margin-left.%]="snippet.timeStartPos"
+        (click)="loadSnippetToPool(snippet)"
         ></div>
     </div>
     <div *ngIf="sectionHide == 'comments'"></div>

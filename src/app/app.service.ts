@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Snippet } from './models/Snippet.model';
+import { SnippetRaw } from './models/SnippetRaw.model';
+import { Tapestry } from './models/tapestry.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,12 @@ export class AppService {
 
   constructor(private http: HttpClient) {}
 
-  getTapestry(): Observable<any> {
-    return this.http.get("http://" + environment.env + "getTapestry", {responseType: "blob"});
+  getTapestry(): Observable<Tapestry> {
+    return this.http.get<Tapestry>("http://" + environment.env + "getTapestry", {responseType: "json"});
   }
 
-  getSnippets(): Observable<Snippet[]> {
-     return this.http.get<Snippet[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
+  getRawSnippets(): Observable<SnippetRaw[]> {
+     return this.http.get<SnippetRaw[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
   }
 
   uploadFile(selectedFile: File): Observable<any> {
