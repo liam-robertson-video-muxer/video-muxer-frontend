@@ -1,0 +1,153 @@
+#selectFile {
+    display: none;
+  }
+
+hr {
+    margin: 0;
+    padding: 0;
+    border-top: 0.15em solid rgba(41, 41, 41, 0.747);
+}
+
+.button-container {
+    width: 50%;
+    display: flex;
+    justify-content:space-evenly;
+    margin: auto;
+}
+
+.flex-container {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.upload-container {
+    display: flex;
+    justify-content: center;
+    padding: 1.5em 0;
+    background-color: rgba(230, 230, 230, 0.63);
+    border-radius: 0.1em;
+}
+
+.sections-container {
+    justify-content: stretch;
+    display: flex;
+}
+
+.sections-container div {
+    text-align: center;
+    padding: 20px 0;
+    flex-grow: 1;
+    border-radius: 5px;
+}
+
+.sections-container div:hover{
+    background-color: rgba(173, 173, 173, 0.63);
+}
+
+#primary-container {
+    background-color: rgba(230, 230, 230, 0.63);
+}
+
+#snippet-container {
+    display: flex;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+}
+
+#video-container {
+    position: relative;
+    width: 60vw;
+    height: 60vh;
+    overflow: hidden;
+    background-color: black;
+}
+
+#video-container:hover .controls {
+    transform: translateY(0);
+}
+
+.snippet-bar {
+    height: 20px;
+    margin: 10px 0;
+    border-radius: 10px;
+    background-color: red;
+}
+
+.snippet-bar:hover {
+    cursor: pointer;
+    background-color: purple;
+}
+
+
+.controls {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    bottom: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    transform: translateY(100%) translateY(-5px);
+    transition: all 0.2s;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+#slider-container {
+    display: grid;
+    height: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.snippet-moving-slider {
+    display: none;
+    grid-column: 1;
+    grid-row: 1;
+    background-color: purple;
+    height: 20px;
+    width: 0;
+}
+
+.snippet-slider {
+    grid-column: 1;
+    grid-row: 1;
+    background-color: green;
+    height: 20px;
+}
+
+#orange-juice {
+    grid-column: 1;
+    grid-row: 1;
+    height: 100%;
+    background-color: orangered;
+}
+
+::ng-deep .mat-accent .mat-slider-thumb {
+    background-color: red;
+} 
+
+::ng-deep .mat-accent .mat-slider-track-fill {
+    background-color: red;
+} 
+
+#play-buttons {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+
+#play-buttons mat-icon {
+    margin: 35px 30px 20px 30px;
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+#snippet-video {
+    display: none;
+}
