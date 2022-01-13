@@ -30,8 +30,8 @@ export class HomeComponent implements OnInit {
   previewSnippetOn: boolean = false;
   value = 0;
   showSnippetVideo: boolean = false;
-  snippetPool: Set<Snippet> = new Set()
-  snippetVidDisplayType: string = "none";
+  snippetPool: Snippet[] = []
+  hideSnippetVidEl: boolean = false;
 
   constructor(
     private appService: AppService
@@ -87,49 +87,66 @@ export class HomeComponent implements OnInit {
     this.createSnippet(selectedFile)
   }
 
+  updateTimeElements(){
+    this.snippetPool.map(snippet => {
+      const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
+      if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeStartPos) {
+        this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
+        this.hideSnippetVidEl = false
+      }
+    })
+    
+    this.timeMinsSecs = this.timeConversion(this.tapestryVidEl.currentTime)
+  }
+
+    
+  // User triggered events
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  loadSnippetToPool(snippet: Snippet) {   
+    if (this.snippetPool.includes(snippet)) {
+      this.snippetPool = this.snippetPool.filter(currSnippet => currSnippet != snippet)
+    } else {
+      this.snippetPool.push(snippet)
+      this.hideSnippetVidEl = false
+      this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
+      this.jumpToTime(snippet.timeStartPos)    
+    }
+  }
+
+  jumpToTime(xPosPcnt: number) {
+    this.tapestryVidEl.currentTime = (xPosPcnt * this.tapestryVidEl.duration) / 100
+  }
+
+  jumpToTimeClick(xPos: number) {
+    const orangeBarEl = document.getElementById("main-slider") as HTMLElement;
+    const startXCoord = orangeBarEl.getBoundingClientRect().left
+    const endXCoord = orangeBarEl.getBoundingClientRect().right - startXCoord
+    const currentXCoord = xPos - startXCoord
+    const widthClickPercent =  (currentXCoord / endXCoord);
   
-// User triggered events
-////////////////////////////////////////////////////////////////////////////////////////////////////////
+    this.tapestryVidEl.currentTime = widthClickPercent * this.tapestryVidEl.duration;
+  }
 
-loadSnippetToPool(snippet: Snippet) {    
-  this.snippetPool.add(snippet)
-  this.snippetVidDisplayType = "initial"
-  this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
-  this.jumpToTime(snippet.timeStartPos)
-  console.log(this.snippetPool);
-  
-}
+  togglePlayPause() {   
+    if (this.pausePlay == "play_arrow") {
+      this.tapestryVidEl.play();
+      this.pausePlay = "pause"
+    } else {
+      this.tapestryVidEl.pause();
+      this.pausePlay = "play_arrow"
+    }
+  }
 
-jumpToTime(xPosPcnt: number) {
-  this.tapestryVidEl.currentTime = (xPosPcnt * this.tapestryVidEl.duration) / 100
-}
-
-jumpToTimeClick(xPos: number) {
-  const orangeBarEl = document.getElementById("main-slider") as HTMLElement;
-  const startXCoord = orangeBarEl.getBoundingClientRect().left
-  const endXCoord = orangeBarEl.getBoundingClientRect().right - startXCoord
-  const currentXCoord = xPos - startXCoord
-  const widthClickPercent =  (currentXCoord / endXCoord);
- 
-  this.tapestryVidEl.currentTime = widthClickPercent * this.tapestryVidEl.duration;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-// Tools
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-setVideoSrc(videoStream: ArrayBuffer, videoElementId: string) {
-  const videoDiv = document.getElementById(videoElementId) as HTMLVideoElement;
-  const blobPart = new Blob([new Uint8Array(videoStream)], {type: "application/octet-stream"})
-  const binaryData = [];
-  binaryData.push(blobPart);
-  videoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
+  createSnippet(selectedFile: File) {
+    this.snippetVideo.style.display = "initial"
+    this.snippetVideo.src = window.URL.createObjectURL(selectedFile);
+    this.snippetVideo.onloadedmetadata = () => {
+      const snippetSlider = document.getElementById("snippet-moving-slider") as HTMLElement;
+      snippetSlider.style.width = ((this.snippetVideo.duration / this.tapestryVidEl.duration) * 100).toString() + "%"
+      this.snippetEndPx = this.snippetVideo.duration * this.pxPerSecondConversion
+    };    
+  }
 
   sectionSelect(sectionName: string) {
     const sectionNames: string[] = ["upload", "browse", "comments"]
@@ -144,72 +161,16 @@ setVideoSrc(videoStream: ArrayBuffer, videoElementId: string) {
     })
   }
 
-  createSnippet(selectedFile: File) {
-    this.snippetVideo.style.display = "initial"
-    this.snippetVideo.src = window.URL.createObjectURL(selectedFile);
-    this.snippetVideo.onloadedmetadata = () => {
-      const snippetSlider = document.getElementById("snippet-moving-slider") as HTMLElement;
-      snippetSlider.style.width = ((this.snippetVideo.duration / this.tapestryVidEl.duration) * 100).toString() + "%"
-      this.snippetEndPx = this.snippetVideo.duration * this.pxPerSecondConversion
-    };    
-  }
 
-  dragVideo(event: any) {    
-    // this.orangeBarPos = (document.getElementById("orange-bar") as HTMLElement).getBoundingClientRect().left
-    // this.snippetWidthPx = (document.getElementById("snippet-slider") as HTMLElement).offsetWidth 
-    // const sliderPos = (document.getElementById("snippet-slider") as HTMLElement).getBoundingClientRect().left
-    // this.snippetStartPx = sliderPos - this.orangeBarPos
-    alert("hi")
-  }
+  // Tools
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // Moving slider
-  sliderMoved(event: any) {
-    this.orangeBarPos = (document.getElementById("slider-container") as HTMLElement).getBoundingClientRect().left
-    this.snippetWidthPx = (document.getElementById("snippet-moving-slider") as HTMLElement).offsetWidth 
-    const sliderPos = (document.getElementById("snippet-moving-slider") as HTMLElement).getBoundingClientRect().left
-    this.snippetStartPx = sliderPos - this.orangeBarPos
-    this.snippetEndPx = this.snippetStartPx + this.snippetWidthPx
-    this.snippetStartTime = this.snippetStartPx / this.pxPerSecondConversion
-    this.snippetEndTime = this.snippetEndPx / this.pxPerSecondConversion
-    this.snippetCheckOnMove()
-  }
-
-  snippetCheckOnMove() {
-    if (this.tapestryVidEl.currentTime >= this.snippetStartTime && this.tapestryVidEl.currentTime <= this.snippetEndTime) {
-      this.snippetVideo.currentTime = this.tapestryVidEl.currentTime - this.snippetStartTime
-      this.snippetVideo.style.display = "initial"
-      this.snippetVideo.play()
-    } else {
-      this.snippetVideo.style.display = "none"
-    }
-  }
-  ///////////////////////////////////
-
-  snippetCheckOnTime() {
-    let snippetBool = false
-    
-    if (this.previewSnippetOn) {
-      if (this.tapestryVidEl.currentTime >= this.snippetStartTime && this.tapestryVidEl.currentTime <= this.snippetEndTime) {
-        if (!snippetBool) {
-          this.snippetVideo.currentTime = this.tapestryVidEl.currentTime - this.snippetStartTime
-        }
-        snippetBool = true
-        this.snippetVideo.style.display = "initial"
-        this.snippetVideo.play()
-      } else {
-        snippetBool = false
-        this.snippetVideo.style.display = "none"
-      }
-    }
-    
-  }
-
-  updateTimeElements(){
-    console.log(this.juiceWidth);
-    
-    this.juiceWidth = this.tapestryVidEl.currentTime * this.pxPerSecondConversion;
-    this.timeMinsSecs = this.timeConversion(this.tapestryVidEl.currentTime)
-    this.snippetCheckOnTime()
+  setVideoSrc(videoStream: ArrayBuffer, videoElementId: string) {
+    const videoDiv = document.getElementById(videoElementId) as HTMLVideoElement;
+    const blobPart = new Blob([new Uint8Array(videoStream)], {type: "application/octet-stream"})
+    const binaryData = [];
+    binaryData.push(blobPart);
+    videoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
   }
 
   timeConversion(time: number) {
@@ -217,17 +178,5 @@ setVideoSrc(videoStream: ArrayBuffer, videoElementId: string) {
     const timeMins: number = Math.floor(rounded / 60)
     const timeMinSecs = `${timeMins} : ${rounded - (timeMins * 60)}`
     return timeMinSecs
-  }
-
-  togglePlayPause() {   
-    if (this.pausePlay == "play_arrow") {
-      this.tapestryVidEl.play();
-      this.pausePlay = "pause"
-    } else {
-      this.tapestryVidEl.pause();
-      this.pausePlay = "play_arrow"
-    }
-  }
-
-  
+  }  
 }
