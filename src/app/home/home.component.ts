@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit {
   previewSnippetOn: boolean = false;
   value = 0;
   showSnippetVideo: boolean = false;
-  snippetPool: Snippet[] = []
+  snippetPool: Set<Snippet> = new Set()
   snippetVidDisplayType: string = "none";
 
   constructor(
@@ -87,26 +87,17 @@ export class HomeComponent implements OnInit {
     this.createSnippet(selectedFile)
   }
 
-  getRawSnippets() {
-    
-  }
-
-  getTapestryVideo() { 
-    
-  }
-
   
-
-  
-
 // User triggered events
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 loadSnippetToPool(snippet: Snippet) {    
-  this.snippetPool.push(snippet)
+  this.snippetPool.add(snippet)
   this.snippetVidDisplayType = "initial"
   this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
   this.jumpToTime(snippet.timeStartPos)
+  console.log(this.snippetPool);
+  
 }
 
 jumpToTime(xPosPcnt: number) {
@@ -114,7 +105,7 @@ jumpToTime(xPosPcnt: number) {
 }
 
 jumpToTimeClick(xPos: number) {
-  const orangeBarEl = document.getElementById("slider-container") as HTMLElement;
+  const orangeBarEl = document.getElementById("main-slider") as HTMLElement;
   const startXCoord = orangeBarEl.getBoundingClientRect().left
   const endXCoord = orangeBarEl.getBoundingClientRect().right - startXCoord
   const currentXCoord = xPos - startXCoord
@@ -131,11 +122,11 @@ jumpToTimeClick(xPos: number) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 setVideoSrc(videoStream: ArrayBuffer, videoElementId: string) {
-  const snippetVideoDiv = document.getElementById(videoElementId) as HTMLVideoElement;
+  const videoDiv = document.getElementById(videoElementId) as HTMLVideoElement;
   const blobPart = new Blob([new Uint8Array(videoStream)], {type: "application/octet-stream"})
   const binaryData = [];
   binaryData.push(blobPart);
-  snippetVideoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
+  videoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

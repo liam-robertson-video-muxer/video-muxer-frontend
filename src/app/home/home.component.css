@@ -54,27 +54,28 @@ hr {
     display: flex;
 }
 
+#video-container {
+    position: relative;
+    width: 60vw;
+    height: 60vh;
+    background-color: black;
+}
+
 video {
+    position: absolute;
     width: 100%;
     height: 100%;
     margin: auto;
 }
 
-#video-container {
-    position: relative;
-    width: 60vw;
-    height: 60vh;
-    overflow: hidden;
-    background-color: black;
+.snippet-pool-container {
+    width: 100%;
 }
 
 .snippet-pool-el {
     height: 5px;
+    margin: 10px 0;
     background-color: red;
-}
-
-#video-container:hover .controls {
-    transform: translateY(0);
 }
 
 .snippet-timeline-bar {
@@ -91,14 +92,9 @@ video {
 
 
 .controls {
-    display: flex;
     position: absolute;
-    flex-direction: column;
     bottom: 0;
     width: 100%;
-    flex-wrap: wrap;
-    transform: translateY(100%) translateY(-5px);
-    transition: all 0.2s;
     background-color: rgba(0, 0, 0, 0.7);
 }
 
@@ -132,8 +128,8 @@ video {
     background-color: orangered;
 }
 
-matt-slider {
-    padding-bottom: 50px;
+#main-slider {
+    width: 100%;
 }
 
 ::ng-deep .mat-accent .mat-slider-thumb {
@@ -146,13 +142,14 @@ matt-slider {
 
 #play-buttons {
     display: flex;
-    align-items: center;
+    text-align: center;
     color: white;
 }
 
 
+
 #play-buttons mat-icon {
-    margin: 35px 30px 20px 30px;
+    padding: 0px 30px 20px 30px;
     transform: scale(1.5);
     cursor: pointer;
 }
