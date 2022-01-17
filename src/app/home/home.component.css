@@ -42,16 +42,12 @@ hr {
     border-radius: 5px;
 }
 
-.sections-container div:hover{
+.sections-button:hover{
     background-color: rgba(173, 173, 173, 0.63);
 }
 
 #primary-container {
     background-color: rgba(230, 230, 230, 0.63);
-}
-
-#snippet-container {
-    display: flex;
 }
 
 #video-container {
@@ -120,30 +116,11 @@ video {
     height: 20px;
 }
 
-#orange-juice {
-    grid-column: 1;
-    grid-row: 1;
-    height: 100%;
-    background-color: orangered;
-}
-
-
-
-::ng-deep .mat-accent .mat-slider-thumb {
-    background-color: red;
-} 
-
-::ng-deep .mat-accent .mat-slider-track-fill {
-    background-color: red;
-} 
-
 #play-buttons {
     display: flex;
     text-align: center;
     color: white;
 }
-
-
 
 #play-buttons mat-icon {
     padding: 0px 30px 20px 30px;
@@ -158,25 +135,36 @@ video {
 #slider-container {
     display: grid;
     width: 100%;
-    height: 20px;
+    height: 10px;
     margin-bottom: 20px;
 }
 
-#main-slider-container {
+
+#slider-buffer {
     grid-row: 1;
+    grid-column: 1;
+    background-color: black;
+}
+
+#main-slider-container {
+    grid-row: 2;
     grid-column: 1;
 }
 
-#main-slider {
-    top: 0;
-    width: 0;
-    background-color: red;
-    height: 20px;
+#preview-slider-thumb {
+    grid-row: 2;
+    grid-column: 1;    top: 0;
+    height: 10px;
+    background-color: rebeccapurple;
 }
 
-#preview-slider-thumb {
-    grid-row: 1;
-    grid-column: 1;    top: 0;
-    height: 20px;
-    background-color: rebeccapurple;
+#main-slider {
+    width: 0;
+    background-color: red;
+    height: 50%;
+}
+
+#entire-page-container {
+    height: 100%;
+    width: 100%;
 }

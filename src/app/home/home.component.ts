@@ -13,24 +13,8 @@ import { SnippetRaw } from '../models/SnippetRaw.model';
 export class HomeComponent implements OnInit {
   pausePlay: string = "play_arrow";
   timeMinsSecs: string = "00:00"
-  juiceWidth: number = 0;
-  tapestryVidEl!: HTMLVideoElement;     
-  snippetVidEl!: HTMLVideoElement;     
-  snippetVideo!: HTMLVideoElement;
-  snippetStartPx: number = 0;
-  snippetEndPx!: number;
-  snippetStartTime!: number;
-  snippetEndTime!: number;
-  pxPerSecondConversion!: number;
-  barWidthPx!: number;
-  orangeBarPos!: number;
-  snippetWidthPx!: number;
   sectionHide: string = "browse"
   snippetList!: Snippet[];
-  selectedSnippetList: Snippet[] = []
-  previewSnippetOn: boolean = false;
-  value = 0;
-  showSnippetVideo: boolean = false;
   snippetPool: Snippet[] = []
   hideSnippetVidEl: boolean = false;
   previewSnippet!: SnippetPreview;
@@ -38,22 +22,20 @@ export class HomeComponent implements OnInit {
   hidePreviewVidEl: boolean = true;
   sliderContainer!: HTMLElement;
   previewSliderThumb!: HTMLInputElement;
-  mainSliderThumb!: HTMLInputElement;
-  sliderThumbPcntX!: number;
+  tapestryVidEl!: HTMLVideoElement;     
+  snippetVidEl!: HTMLVideoElement;   
   tapestryCurrentTime: number = 0
-  username!: Event;
   currentSliderXpcnt: number = 0
   mainSliderXpcnt: number = 0
-
-  @Input()  currentTime!: number | string;
-  @Output() currentTimeChange = new EventEmitter<number>();
-
-  constructor(
-    private appService: AppService
-    ) {}
-  
-  ngOnInit(): void {
-    this.setInitialVariables()    
+  mousedown!: boolean;
+  mainSliderContainer!: HTMLInputElement;
+ 
+  constructor( 
+    private appService: AppService 
+    ) {} 
+   
+  ngOnInit(): void { 
+    this.setInitialVariables()     
     this.appService.getTapestry().subscribe(tapestry => {
       this.setVideoSrc(tapestry.videoStream, "tapestry-videoEl")
 
@@ -90,9 +72,14 @@ export class HomeComponent implements OnInit {
     this.snippetVidEl = document.getElementById("snippet-videoEl") as HTMLVideoElement; 
     this.sliderContainer = document.getElementById("slider-container") as HTMLElement
     this.previewSliderThumb = document.getElementById("preview-slider-thumb") as HTMLInputElement
-    this.mainSliderThumb = document.getElementById("main-slider-thumb") as HTMLInputElement
+    const mainSlider = document.getElementById("main-slider") as HTMLInputElement
+    this.mainSliderContainer = document.getElementById("main-slider-container") as HTMLInputElement
+    this.mainSliderContainer.addEventListener('dragstart', (e) => {
+      e.preventDefault()
+    })
+    mainSlider.style.width = ((this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100).toString() + "%"
     this.previewSnippet = {
-      file: undefined,
+      file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
       videoStreamUrl: "",
       user: "",
       videoType: "",
@@ -119,9 +106,7 @@ export class HomeComponent implements OnInit {
         timeEndPos: ((this.previewSnippetStartTime + snippetVideoElement.duration) / tapesetryVideoElement.duration) * 100,
         durationWidth: (snippetVideoElement.duration  / tapesetryVideoElement.duration) * 100,
       }
-      this.hidePreviewVidEl = false
-      console.log(this.previewSnippet);
-      
+      this.hidePreviewVidEl = false      
     }; 
   }
 
@@ -187,12 +172,28 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  dragMoved(event: CdkDragMove) {
-    const sliderContainerRect = this.sliderContainer.getBoundingClientRect()
-    const sliderContainerWidth = sliderContainerRect.right - sliderContainerRect.left
-    const sliderThumbRect = this.previewSliderThumb.getBoundingClientRect()        
-    this.sliderThumbPcntX = ((sliderThumbRect.left - sliderContainerRect.left) / sliderContainerWidth) * 100    
-    this.tapestryCurrentTime = this.sliderThumbPcntX * this.tapestryVidEl.duration / 100    
+  mouseDown(event: MouseEvent) {
+    this.mousedown = true
+    this.jumpToTimeClick(event)
+  }
+
+  mainSliderDragged(event: MouseEvent) {    
+    if (this.mousedown) {
+      this.jumpToTimeClick(event)
+    }
+
+    // const sliderContainerRect = this.sliderContainer.getBoundingClientRect()
+    // const sliderContainerWidth = sliderContainerRect.right - sliderContainerRect.left
+    // const sliderThumbRect = this.previewSliderThumb.getBoundingClientRect()        
+    // this.sliderThumbPcntX = ((sliderThumbRect.left - sliderContainerRect.left) / sliderContainerWidth) * 100    
+    // this.tapestryCurrentTime = this.sliderThumbPcntX * this.tapestryVidEl.duration / 100    
+  }
+
+  uploadFile() {
+    this.previewSnippet.timeEndPos
+    this.previewSnippet.timeStartPos
+    this.appService.uploadFile(this.previewSnippet)
+    
   }
 
 
@@ -207,11 +208,6 @@ export class HomeComponent implements OnInit {
     videoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
   }
 
-  getCurrentTime() {
-    const currentTime = this.currentSliderXpcnt
-    return currentTime
-  }
-
   timeConversion(time: number) {
     const rounded: number = Math.round(time)
     const timeMins: number = Math.floor(rounded / 60)
@@ -220,12 +216,3 @@ export class HomeComponent implements OnInit {
   }  
   
 }
-
-
-
-// (cdkDragStarted)="dragStarted($event)"
-// (cdkDragEnded)="dragEnded($event)"
-// (cdkDragMoved)="dragMoved($event)"
-// dragStarted(event: CdkDragStart) {
-// dragEnded(event: CdkDragEnd) {
-// dragMoved(event: CdkDragMove) {

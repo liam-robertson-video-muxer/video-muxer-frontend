@@ -1,5 +1,5 @@
 export interface SnippetPreview {
-    file: File | undefined;
+    file: File;
     videoStreamUrl: string;
     user: string;
     videoType: string;

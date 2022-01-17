@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SnippetRaw } from './models/SnippetRaw.model';
 import { Tapestry } from './models/tapestry.model';
+import { SnippetPreview } from './models/SnippetPreview.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +21,9 @@ export class AppService {
      return this.http.get<SnippetRaw[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
   }
 
-  uploadFile(selectedFile: File): Observable<any> {
+  uploadFile(snippet: SnippetPreview): Observable<any> {
     const formData = new FormData();
-    formData.append("file", selectedFile);
+    formData.append("file", snippet.file);
     return this.http.post("http://" + environment.env + "updateAnimation", formData, )
   }
 }
