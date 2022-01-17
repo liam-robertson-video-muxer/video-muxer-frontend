@@ -3,11 +3,14 @@
 
 <div id="video-container">
     <video type='video/mp4' id="snippet-videoEl" [hidden]="hideSnippetVidEl"></video>
-    <video type='video/mp4' id="tapestry-videoEl" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
+    <video type='video/mp4' id="tapestry-videoEl" [currentTime]="tapestryCurrentTime" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
     <div class="controls">
-        <mat-slider id="main-slider" min="1" max="100" [value]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100" (click)="jumpToTimeClick($event.clientX)"></mat-slider>
+        <div id="slider-container" (click)="jumpToTimeClick($event)">
+            <div id="preview-slider-thumb" [style.width.%]="previewSnippet.durationWidth" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
+            <div id="main-slider" [style.width.%]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100" (cdkDragMoved)="dragMoved($event)" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
+        </div>
         <div id="snippet-pool-container">
-            <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos"></div>
+            <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" [hidden]="hidePreviewVidEl"></div>
         </div>
         <div id="play-buttons">
             <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
