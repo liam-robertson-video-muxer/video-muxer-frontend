@@ -157,20 +157,26 @@ video {
 
 #slider-container {
     display: grid;
-    grid-column: 0 / span 2;
     width: 100%;
     height: 20px;
     margin-bottom: 20px;
 }
 
-#main-slider {
+#main-slider-container {
     grid-row: 1;
+    grid-column: 1;
+}
+
+#main-slider {
+    top: 0;
+    width: 0;
     background-color: red;
     height: 20px;
 }
 
 #preview-slider-thumb {
     grid-row: 1;
+    grid-column: 1;    top: 0;
     height: 20px;
     background-color: rebeccapurple;
 }

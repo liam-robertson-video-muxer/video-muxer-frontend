@@ -5,9 +5,11 @@
     <video type='video/mp4' id="snippet-videoEl" [hidden]="hideSnippetVidEl"></video>
     <video type='video/mp4' id="tapestry-videoEl" [currentTime]="tapestryCurrentTime" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
     <div class="controls">
-        <div id="slider-container" (click)="jumpToTimeClick($event)">
+        <div id="slider-container">
+            <div id="main-slider-container" (click)="jumpToTimeClick($event)">
+                <div id="main-slider" [style.width.%]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100"></div>
+            </div>
             <div id="preview-slider-thumb" [style.width.%]="previewSnippet.durationWidth" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
-            <div id="main-slider" [style.width.%]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100" (cdkDragMoved)="dragMoved($event)" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
         </div>
         <div id="snippet-pool-container">
             <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" [hidden]="hidePreviewVidEl"></div>

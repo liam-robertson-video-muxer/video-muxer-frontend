@@ -133,8 +133,6 @@ export class HomeComponent implements OnInit {
         this.hideSnippetVidEl = false
       }
     })
-    console.log(this.tapestryVidEl.duration);
-    console.log(100 / this.tapestryVidEl.duration);
     
     this.mainSliderXpcnt += 100 / this.tapestryVidEl.duration
     this.timeMinsSecs = this.timeConversion(this.tapestryVidEl.currentTime)
@@ -160,11 +158,10 @@ export class HomeComponent implements OnInit {
   }
 
   jumpToTimeClick(event: MouseEvent) {
-    const previewSliderThumb = document.getElementById("slider-container") as HTMLElement;
-    const sliderContainerWidth = previewSliderThumb.getBoundingClientRect().width
-    console.log(event);
-    
-    this.tapestryVidEl.currentTime = (event.clientX / sliderContainerWidth) * this.tapestryVidEl.duration;
+    const sliderContainerDiv = document.getElementById("slider-container") as HTMLElement;
+    const sliderContainerWidth = sliderContainerDiv.getBoundingClientRect().width
+    const mouseClickPos = event.clientX - sliderContainerDiv.getBoundingClientRect().left    
+    this.tapestryVidEl.currentTime = (mouseClickPos / sliderContainerWidth) * this.tapestryVidEl.duration;
   }
 
   togglePlayPause() {   
