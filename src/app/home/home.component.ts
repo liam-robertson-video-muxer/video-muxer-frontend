@@ -2,6 +2,7 @@ import { CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AppService } from '../app.service';
 import { Snippet } from '../models/Snippet.model';
+import { SnippetOut } from '../models/SnippetOut.model';
 import { SnippetPreview } from '../models/SnippetPreview.model';
 import { SnippetRaw } from '../models/SnippetRaw.model';
 
@@ -29,6 +30,8 @@ export class HomeComponent implements OnInit {
   mainSliderXpcnt: number = 0
   mousedown!: boolean;
   mainSliderContainer!: HTMLInputElement;
+  snippetOut!: SnippetOut;
+  selectedFile!: File;
  
   constructor( 
     private appService: AppService 
@@ -80,7 +83,6 @@ export class HomeComponent implements OnInit {
     mainSlider.style.width = ((this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100).toString() + "%"
     this.previewSnippet = {
       file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
-      videoStreamUrl: "",
       user: "",
       videoType: "",
       timeStartPos: 0,
@@ -90,24 +92,25 @@ export class HomeComponent implements OnInit {
   }
 
   createSnippetFromFile(event: any) {
-    const selectedFile: File = event.target.files[0];   
-    const snippetVideoElement = document.getElementById("snippet-videoEl") as HTMLVideoElement;
-    const tapesetryVideoElement = document.getElementById("tapestry-videoEl") as HTMLVideoElement;
-    snippetVideoElement.src = window.URL.createObjectURL(selectedFile);
-    snippetVideoElement.muted = true
-    snippetVideoElement.onloadedmetadata = () => {
-      this.hideSnippetVidEl = false
+    this.selectedFile = event.target.files[0];   
+    this.snippetVidEl.src = window.URL.createObjectURL(this.selectedFile);
+    this.snippetVidEl.muted = true
+    this.snippetVidEl.onloadedmetadata = () => {
+      
+      this.previewSnippet.durationWidth = (this.snippetVidEl.duration / this.tapestryVidEl.duration) * 100
+      const previewSliderRect = this.previewSliderThumb.getBoundingClientRect()
+      const sliderContainerRect = this.sliderContainer.getBoundingClientRect()
+
       this.previewSnippet = {
-        file: selectedFile,
-        videoStreamUrl: window.URL.createObjectURL(selectedFile),
+        file: this.selectedFile,
         user: "liam",
-        videoType: selectedFile.type,
-        timeStartPos: (this.previewSnippetStartTime / tapesetryVideoElement.duration) * 100,
-        timeEndPos: ((this.previewSnippetStartTime + snippetVideoElement.duration) / tapesetryVideoElement.duration) * 100,
-        durationWidth: (snippetVideoElement.duration  / tapesetryVideoElement.duration) * 100,
+        videoType: this.selectedFile.type,
+        timeStartPos: ((previewSliderRect.left - sliderContainerRect.left) / sliderContainerRect.width) * 100,
+        timeEndPos: ((previewSliderRect.right - sliderContainerRect.left) / sliderContainerRect.width) * 100,
+        durationWidth: (this.snippetVidEl.duration / this.tapestryVidEl.duration) * 100,
       }
-      this.hidePreviewVidEl = false      
-    }; 
+    }
+    
   }
 
   updateTimeElements() {
@@ -136,6 +139,19 @@ export class HomeComponent implements OnInit {
       this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
       this.jumpToTime(snippet.timeStartPos)    
     }
+  }
+
+  previewSliderDrag() {
+    const previewSliderRect = this.previewSliderThumb.getBoundingClientRect()
+    const sliderContainerRect = this.sliderContainer.getBoundingClientRect()
+
+    this.previewSnippet.timeStartPos = ((previewSliderRect.left - sliderContainerRect.left) / sliderContainerRect.width) * 100
+    this.previewSnippet.timeEndPos = ((previewSliderRect.right - sliderContainerRect.left) / sliderContainerRect.width) * 100
+    this.previewSnippet.durationWidth = (previewSliderRect.width / sliderContainerRect.width) * 100    
+  }
+
+  selectFile() {
+    (document.getElementById("selectFile") as HTMLInputElement).click()
   }
 
   jumpToTime(xPosPcnt: number) {
@@ -190,9 +206,15 @@ export class HomeComponent implements OnInit {
   }
 
   uploadFile() {
-    this.previewSnippet.timeEndPos
-    this.previewSnippet.timeStartPos
-    this.appService.uploadFile(this.previewSnippet)
+    this.snippetOut = {
+      file: this.previewSnippet.file,
+      user: "liam",
+      videoType: this.previewSnippet.videoType,
+      timeStart: (this.previewSnippet.timeStartPos / 100) * this.tapestryVidEl.duration,
+      timeEnd: (this.previewSnippet.timeEndPos / 100) * this.tapestryVidEl.duration,
+      duration: (this.previewSnippet.durationWidth / 100) * this.tapestryVidEl.duration,
+  }
+    this.appService.uploadFile(this.snippetOut)
     
   }
 

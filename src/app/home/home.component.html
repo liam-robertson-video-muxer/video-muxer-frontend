@@ -4,10 +4,10 @@
         <video type='video/mp4' id="tapestry-videoEl" [currentTime]="tapestryCurrentTime" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
         <div class="controls">
             <div id="slider-container">
-                <div id="main-slider-container"  (mousedown)="mouseDown($event)">
+                <div id="main-slider-container" (mousedown)="mouseDown($event)">
                     <div id="main-slider" [style.width.%]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100"></div>
                 </div>
-                <div id="preview-slider-thumb" [style.width.%]="previewSnippet.durationWidth" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
+                <div id="preview-slider-thumb" [style.width.%]="previewSnippet.durationWidth" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
             </div>
             <div id="snippet-pool-container">
                 <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos"></div>
@@ -31,7 +31,7 @@
                 <div class="flex-container">
                     <input type="file" (change)="createSnippetFromFile($event)" id="selectFile" #selectFileEl>
                         <div class="button-container">
-                            <button *ngIf="selectFileEl.value==''" mat-raised-button color="primary" type="button" (click)="selectFileEl.click()">
+                            <button *ngIf="selectFileEl.value==''" mat-raised-button color="primary" type="button" (click)="selectFile()">
                                 <mat-icon>attach_file</mat-icon>
                                 Select File
                             </button>
