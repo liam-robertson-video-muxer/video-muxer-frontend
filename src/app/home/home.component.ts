@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit {
   mainSliderContainer!: HTMLInputElement;
   snippetOut!: SnippetOut;
   selectedFile!: File;
+  loading: boolean = true
  
   constructor( 
     private appService: AppService 
@@ -46,7 +47,11 @@ export class HomeComponent implements OnInit {
         this.snippetList = this.refineRawSnippets(rawSnippetList, tapestry.duration)
       })
     });  
-
+    this.tapestryVidEl.onloadedmetadata = () => {
+      this.snippetVidEl.onloadedmetadata = () => {
+        this.loading = false
+      }
+    }
   }
 
   refineRawSnippets(rawSnippetList: SnippetRaw[], tapestryDuration: number) {

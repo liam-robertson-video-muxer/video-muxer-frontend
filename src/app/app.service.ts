@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SnippetRaw } from './models/SnippetRaw.model';
 import { Tapestry } from './models/tapestry.model';
-import { SnippetPreview } from './models/SnippetPreview.model';
 import { SnippetOut } from './models/SnippetOut.model';
 
 @Injectable({
