@@ -83,6 +83,7 @@ export class HomeComponent implements OnInit {
     mainSlider.style.width = ((this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100).toString() + "%"
     this.previewSnippet = {
       file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
+      videostreamUrl: "",
       user: "",
       videoType: "",
       timeStartPos: 0,
@@ -103,6 +104,7 @@ export class HomeComponent implements OnInit {
 
       this.previewSnippet = {
         file: this.selectedFile,
+        videostreamUrl: window.URL.createObjectURL(this.selectedFile),
         user: "liam",
         videoType: this.selectedFile.type,
         timeStartPos: ((previewSliderRect.left - sliderContainerRect.left) / sliderContainerRect.width) * 100,
@@ -114,15 +116,24 @@ export class HomeComponent implements OnInit {
   }
 
   updateTimeElements() {
-    this.snippetPool.map(snippet => {
-      const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
-      if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeStartPos) {
-        this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
+    const fileSelectorDiv = document.getElementById("selectFile") as HTMLInputElement
+    const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
+    if (this.snippetPool.length > 0) {
+      this.snippetPool.map(snippet => {
+        if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {
+          this.setVideoSrc(snippet.videoStream, "snippet-videoEl")
+          this.hideSnippetVidEl = false
+        }
+      })
+    } else if (fileSelectorDiv.value != '') {
+      if (tapestryTimePcnt >= this.previewSnippet.timeStartPos && tapestryTimePcnt <= this.previewSnippet.timeEndPos) {
+        this.snippetVidEl.src = (this.previewSnippet.videostreamUrl, "snippet-videoEl")
         this.hideSnippetVidEl = false
       }
-    })
+    } else {
+      this.hideSnippetVidEl = true
+    }
     
-    this.mainSliderXpcnt += 100 / this.tapestryVidEl.duration
     this.timeMinsSecs = this.timeConversion(this.tapestryVidEl.currentTime)
   }
 
