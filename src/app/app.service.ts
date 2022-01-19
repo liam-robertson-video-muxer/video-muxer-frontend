@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SnippetRaw } from './models/SnippetRaw.model';
-import { Tapestry } from './models/tapestry.model';
 import { SnippetOut } from './models/SnippetOut.model';
 
 @Injectable({
@@ -13,8 +12,8 @@ export class AppService {
 
   constructor(private http: HttpClient) {}
 
-  getTapestry(): Observable<Tapestry> {
-    return this.http.get<Tapestry>("http://" + environment.env + "getTapestry", {responseType: "json"});
+  getTapestry(): Observable<Blob> {
+    return this.http.get("http://" + environment.env + "getTapestry", {responseType: "blob"});
   }
 
   getRawSnippets(): Observable<SnippetRaw[]> {

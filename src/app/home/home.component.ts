@@ -41,10 +41,10 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void { 
     this.setInitialVariables()     
     this.appService.getTapestry().subscribe(tapestry => {
-      this.setVideoSrc(tapestry.videoStream, "tapestry-videoEl")
-
+      this.tapestryVidEl.src = window.URL.createObjectURL(tapestry);
+      
       this.appService.getRawSnippets().subscribe((rawSnippetList: SnippetRaw[]) => {        
-        this.snippetList = this.refineRawSnippets(rawSnippetList, tapestry.duration)
+        this.snippetList = this.refineRawSnippets(rawSnippetList, this.tapestryVidEl.duration)
       })
     });  
     this.tapestryVidEl.onloadedmetadata = () => {
@@ -121,7 +121,7 @@ export class HomeComponent implements OnInit {
   }
 
   updateTimeElements() {
-    const fileSelectorDiv = document.getElementById("selectFile") as HTMLInputElement
+    const fileSelectorDiv = document.getElementById("selectFile") as HTMLInputElement    
     const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
     if (this.snippetPool.length > 0) {
       this.snippetPool.map(snippet => {
@@ -130,7 +130,7 @@ export class HomeComponent implements OnInit {
           this.hideSnippetVidEl = false
         }
       })
-    } else if (fileSelectorDiv.value != '') {
+    } else if (this.selectedFile != undefined) {
       if (tapestryTimePcnt >= this.previewSnippet.timeStartPos && tapestryTimePcnt <= this.previewSnippet.timeEndPos) {
         this.snippetVidEl.src = (this.previewSnippet.videostreamUrl, "snippet-videoEl")
         this.hideSnippetVidEl = false
