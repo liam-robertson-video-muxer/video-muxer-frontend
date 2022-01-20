@@ -1,9 +1,9 @@
 <div id="entire-page-container" (mouseup)="this.mousedown=false" (mousemove)="mainSliderDragged($event)">
     <div id="margin-container">
         <div id="primary-container">
-            <div id="video-container">
-                <video type='video/mp4' id="snippet-videoEl" [hidden]="hideSnippetVidEl"></video>
-                <video type='video/mp4' id="tapestry-videoEl" [currentTime]="tapestryCurrentTime" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
+            <div id="video-player">
+                <video type='video/mp4' id="snippet-videoEl" [hidden]="!showSnippetVidEl" (click)="togglePlayPause()"></video>
+                <video type='video/mp4' id="tapestry-videoEl" [hidden]="!showTapestryVidEl" [currentTime]="tapestryCurrentTime" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
                 <div id="controls">
                     <div id="slider-container">
                         <div id="main-slider-container" (mousedown)="mouseDown($event)">
