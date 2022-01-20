@@ -15,7 +15,11 @@
                         <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" (click)="loadSnippetToPool(snippet)"></div>
                     </div>
                     <div id="play-container">
-                        <mat-icon (click)="togglePlayPause()" id="play-pause">{{pausePlay}}</mat-icon>
+                        <mat-icon (click)="togglePlayPause()" id="play-icon">{{pausePlay}}</mat-icon>
+                        <div id="volume-container" (mouseover)="volumeHover=true" (mouseleave)="volumeHover=false">
+                            <mat-icon>volume_up</mat-icon>
+                            <input id="volume-slider" type="range" min="1" max="100" value="100" *ngIf="volumeHover">
+                        </div>
                         <p id="timer">{{timeMinsSecs}}</p>
                     </div>
                 </div>

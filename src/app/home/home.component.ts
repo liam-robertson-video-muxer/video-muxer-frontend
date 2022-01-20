@@ -33,6 +33,7 @@ export class HomeComponent implements OnInit {
   snippetOut!: SnippetOut;
   selectedFile!: File;
   loading: boolean = true
+  volumeHover = false
  
   constructor( 
     private appService: AppService 
