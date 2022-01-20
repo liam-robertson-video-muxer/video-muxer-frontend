@@ -168,7 +168,6 @@ export class HomeComponent implements OnInit {
       var binaryData = [];
       binaryData.push(snippet.videoStream);
       this.snippetVidEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))
-      this.jumpToTime(snippet.timeStartPos)    
     }
   }
 
