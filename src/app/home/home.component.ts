@@ -32,6 +32,8 @@ export class HomeComponent implements OnInit {
   showSnippetVidEl: boolean = false;
   loading: boolean = true
   volumeHover = false
+  showTapestryVidEl = true
+  snippetLoadedId: number | null = null
  
   constructor( 
     private appService: AppService 
@@ -84,6 +86,7 @@ export class HomeComponent implements OnInit {
     this.mainSliderContainer.addEventListener('dragstart', (e) => {
       e.preventDefault()
     })
+    this.snippetVidEl.muted = true
     mainSlider.style.width = ((this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100).toString() + "%"
     this.previewSnippet = {
       file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
@@ -132,23 +135,35 @@ export class HomeComponent implements OnInit {
   }
 
   showHideSnippets(tapestryTimePcnt: number) {
-    const isSnippetLoaded = (snippet: Snippet) => tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos
+    const isSnippetLoadedCheck = (snippet: Snippet) => tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos
     if (this.snippetPool.length > 0) {
-      if (this.snippetPool.some(isSnippetLoaded)) {        
+      if (this.snippetPool.some(isSnippetLoadedCheck)) {        
         this.snippetPool.map((snippet: Snippet) => {
           if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {
-            const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
-            const binaryData = [];
-            binaryData.push(blobPart);          
-            this.snippetVidEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))
-            this.snippetVidEl.onloadedmetadata = () => {
+            console.log(this.snippetLoadedId);
+            
+            if (this.snippetLoadedId != snippet.id) {
+              const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
+              const binaryData = [];
+              binaryData.push(blobPart);          
               this.showSnippetVidEl = true
+              this.snippetVidEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))
+              this.snippetVidEl.onloadedmetadata = () => {
+                this.snippetLoadedId = snippet.id
+                if (!this.tapestryVidEl.paused) {
+                  this.snippetVidEl.play()
+                }                
+              }
             }
           }
         })
       } else {
         this.showSnippetVidEl = false
+        this.snippetLoadedId = null
       } 
+    }  else {
+      this.showSnippetVidEl = false
+      this.snippetLoadedId = null
     } 
   }
 
@@ -198,21 +213,17 @@ export class HomeComponent implements OnInit {
       case "play_arrow": 
         if (this.showSnippetVidEl) {
           this.snippetVidEl.play();
-          this.pausePlay = "pause"
-        } else {
-          this.tapestryVidEl.play();
-          this.pausePlay = "pause"
-        }
+        } 
+        this.tapestryVidEl.play();
+        this.pausePlay = "pause"
         break;
 
       case "pause": 
         if (this.showSnippetVidEl) {
           this.snippetVidEl.pause();
-          this.pausePlay = "play_arrow"
-        } else {
-          this.tapestryVidEl.pause();
-          this.pausePlay = "play_arrow"
-        }
+        } 
+        this.tapestryVidEl.pause();
+        this.pausePlay = "play_arrow"
         break;
     }
   }
