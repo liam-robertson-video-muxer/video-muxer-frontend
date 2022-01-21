@@ -30,7 +30,6 @@ export class HomeComponent implements OnInit {
   snippetOut!: SnippetOut;
   selectedFile!: File;
   showSnippetVidEl: boolean = false;
-  showTapestryVidEl: boolean = true;
   loading: boolean = true
   volumeHover = false
  
@@ -144,13 +143,11 @@ export class HomeComponent implements OnInit {
             this.snippetVidEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))
             this.snippetVidEl.onloadedmetadata = () => {
               this.showSnippetVidEl = true
-              this.showTapestryVidEl = false
             }
           }
         })
       } else {
         this.showSnippetVidEl = false
-        this.showTapestryVidEl = true
       } 
     } 
   }
