@@ -121,6 +121,7 @@ export class HomeComponent implements OnInit {
   }
 
   updateTimeElements() {
+    this.timeMinsSecs = new Date(this.tapestryVidEl.currentTime * 1000).toISOString().substring(14, 19)
     const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
     this.showHideSnippets(tapestryTimePcnt)
     if (this.selectedFile != undefined) {
@@ -129,7 +130,6 @@ export class HomeComponent implements OnInit {
         this.showSnippetVidEl = true
       }
     }
-    this.timeMinsSecs = this.timeConversion(this.tapestryVidEl.currentTime)
   }
 
   showHideSnippets(tapestryTimePcnt: number) {
@@ -193,6 +193,7 @@ export class HomeComponent implements OnInit {
     const sliderContainerWidth = sliderContainerDiv.getBoundingClientRect().width
     const mouseClickPos = event.clientX - sliderContainerDiv.getBoundingClientRect().left    
     this.tapestryVidEl.currentTime = (mouseClickPos / sliderContainerWidth) * this.tapestryVidEl.duration;
+    this.timeMinsSecs = new Date(this.tapestryVidEl.currentTime * 1000).toISOString().substring(14, 19)
   }
 
   togglePlayPause() {
@@ -241,7 +242,6 @@ export class HomeComponent implements OnInit {
     if (this.mousedown) {
       this.jumpToTimeClick(event)
     }
-  
   }
 
   uploadFile() {
@@ -268,12 +268,5 @@ export class HomeComponent implements OnInit {
     binaryData.push(blobPart);
     videoDiv.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
   }
-
-  timeConversion(time: number) {
-    const rounded: number = Math.round(time)
-    const timeMins: number = Math.floor(rounded / 60)
-    const timeMinSecs = `${timeMins} : ${rounded - (timeMins * 60)}`
-    return timeMinSecs
-  }  
   
 }
