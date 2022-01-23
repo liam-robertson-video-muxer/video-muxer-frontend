@@ -12,7 +12,7 @@
                         <div id="preview-slider-thumb" [style.width.%]="previewSnippet.durationWidth" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
                     </div>
                     <div id="snippet-pool-container">
-                        <div class="snippet-pool-el" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" (click)="loadSnippetToPool(snippet)"></div>
+                        <div class="snippet-pool-el" [attr.id]="'snippet-pool-el-' + snippet.id" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" (click)="loadSnippetToPool(snippet)"></div>
                     </div>
                     <div id="play-container">
                         <mat-icon (click)="togglePlayPause()" id="play-icon">{{pausePlay}}</mat-icon>

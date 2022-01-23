@@ -4,7 +4,7 @@ import { Snippet } from '../models/Snippet.model';
 import { SnippetOut } from '../models/SnippetOut.model';
 import { SnippetPreview } from '../models/SnippetPreview.model';
 import { SnippetRaw } from '../models/SnippetRaw.model';
-import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Tapestry } from '../models/Tapestry.model';
 
 @Component({
@@ -42,8 +42,8 @@ export class HomeComponent implements OnInit {
     videoStreamUrl: "",
     visible: true,
   }
+  interval!: number;
 
- 
   constructor( 
     private appService: AppService,
     private sanitizer:DomSanitizer
@@ -72,7 +72,6 @@ export class HomeComponent implements OnInit {
         videoDiv: document.getElementById("snippet-videoEl-" + rawSnippet.id) as HTMLVideoElement,
         videoStreamUrl: this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))),
         user: rawSnippet.user,
-        videoType: rawSnippet.videoType,
         timeStartPos: (rawSnippet.timeStart / tapestryDuration) * 100,
         timeEndPos: (rawSnippet.timeEnd / tapestryDuration) * 100,
         durationWidth: (rawSnippet.duration / tapestryDuration) * 100,
@@ -110,7 +109,7 @@ export class HomeComponent implements OnInit {
   }
 
   createSnippetFromFile(event: any) {
-    this.selectedFile = event.target.files[0];   
+    this.selectedFile = event.target.files[0];
     this.snippetVidEl.muted = true
     this.snippetVidEl.onloadedmetadata = () => {
       
@@ -128,7 +127,6 @@ export class HomeComponent implements OnInit {
         durationWidth: (this.snippetVidEl.duration / this.tapestryVidEl.duration) * 100,
       }
     }
-    
   }
 
   updateTimeElements() {
@@ -149,9 +147,13 @@ export class HomeComponent implements OnInit {
     if (this.snippetPool.length > 0) {
       if (this.snippetPool.some(isSnippetLoadedCheck)) {        
         this.snippetPool.map((snippet: Snippet) => {
-          if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {            
-            snippet.visible = true
-            this.tapestry.visible = false
+          if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {       
+            snippet.visible = true;
+            snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement            
+            if (snippet.videoDiv != null) {
+              snippet.videoDiv.play()      
+              this.tapestry.visible = false
+            }
           } else {
             snippet.visible = false
             this.tapestry.visible = true
@@ -167,7 +169,7 @@ export class HomeComponent implements OnInit {
     } 
   }
 
-    
+
   // User triggered events
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -176,12 +178,25 @@ export class HomeComponent implements OnInit {
       this.snippetPool = this.snippetPool.filter(currSnippet => currSnippet != snippet)
     } else {
       this.snippetPool.push(snippet)      
-      snippet.videoDiv = document.getElementById("snippet-videoEl-1") as HTMLVideoElement
-      console.log(snippet);
-
+      snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement
+      this.interval = window.setInterval(() => (this.setSnippetTime(snippet), 1000))
     }
     const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
     this.showHideSnippets(tapestryTimePcnt)
+  }
+
+  setSnippetTime(snippet: Snippet) {
+    if (document.getElementById("snippet-pool-el-" + snippet.id) != null && document.getElementById("snippet-videoEl-" + snippet.id) != null) {
+      const tapestryCurrentTimePos = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
+      const snippetSlider = document.getElementById("snippet-pool-el-" + snippet.id) as HTMLElement
+      const tapestryVid = document.getElementById("tapestry-videoEl") as HTMLVideoElement
+      snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement
+      const snippetTimePos = (((tapestryCurrentTimePos * tapestryVid.getBoundingClientRect().width) - snippetSlider.getBoundingClientRect().left) / snippetSlider.getBoundingClientRect().width)
+      snippet.videoDiv.onloadedmetadata = () => {
+        snippet.currentTime = (snippetTimePos * snippet.videoDiv.duration) / 100;
+        clearInterval(this.interval);
+      }
+    }
   }
 
   previewSliderDrag() {
@@ -190,7 +205,7 @@ export class HomeComponent implements OnInit {
 
     this.previewSnippet.timeStartPos = ((previewSliderRect.left - sliderContainerRect.left) / sliderContainerRect.width) * 100
     this.previewSnippet.timeEndPos = ((previewSliderRect.right - sliderContainerRect.left) / sliderContainerRect.width) * 100
-    this.previewSnippet.durationWidth = (previewSliderRect.width / sliderContainerRect.width) * 100    
+    this.previewSnippet.durationWidth = (previewSliderRect.width / sliderContainerRect.width) * 100
   }
 
   selectFile() {
@@ -204,22 +219,23 @@ export class HomeComponent implements OnInit {
   jumpToTimeClick(event: MouseEvent) {
     const sliderContainerDiv = document.getElementById("slider-container") as HTMLElement;
     const sliderContainerWidth = sliderContainerDiv.getBoundingClientRect().width
-    const mouseClickPos = event.clientX - sliderContainerDiv.getBoundingClientRect().left    
-    this.tapestryVidEl.currentTime = (mouseClickPos / sliderContainerWidth) * this.tapestryVidEl.duration;
+    const mouseClickPos = (event.clientX - sliderContainerDiv.getBoundingClientRect().left) / sliderContainerDiv.getBoundingClientRect().width * 100
+    this.tapestryVidEl.currentTime = ((event.clientX - sliderContainerDiv.getBoundingClientRect().left) / sliderContainerWidth) * this.tapestryVidEl.duration;
     this.timeMinsSecs = new Date(this.tapestryVidEl.currentTime * 1000).toISOString().substring(14, 19)
 
     const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
     const isSnippetLoadedCheck = (snippet: Snippet) => tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos
     if (this.snippetPool.length > 0) {
-      if (this.snippetPool.some(isSnippetLoadedCheck)) {        
+      if (this.snippetPool.some(isSnippetLoadedCheck)) {
         this.snippetPool.map((snippet: Snippet) => {
-          if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {            
-            console.log(snippet.currentTime);
-            console.log(snippet);
-            
-            snippet.currentTime = (mouseClickPos / snippet.durationWidth) * snippet.videoDiv.duration;            
-            
+          if (mouseClickPos >= snippet.timeStartPos && mouseClickPos <= snippet.timeEndPos) {  
+            const snippetSlider = document.getElementById("snippet-pool-el-" + snippet.id) as HTMLVideoElement
+            snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement
+            const mouseClickPosSnippet = ((event.clientX - snippetSlider.getBoundingClientRect().left) / snippetSlider.getBoundingClientRect().width) * 100
+                     
+            snippet.currentTime = (mouseClickPosSnippet * snippet.videoDiv.duration) / 100;
             snippet.visible = true
+            snippet.videoDiv.play()
             this.tapestry.visible = false
           } else {
             snippet.visible = false
