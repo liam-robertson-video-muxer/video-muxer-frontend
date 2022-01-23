@@ -161,22 +161,24 @@ export class HomeComponent implements OnInit {
   }
 
   createSnippetFromFile(event: any) {
-    // this.selectedFile = event.target.files[0];
-    // this.snippetVidEl.muted = true
-    // this.snippetVidEl.onloadedmetadata = () => {
-      
-    //   this.previewSnippet.durationWidth = (this.snippetVidEl.duration / this.tapestry.videoDiv.duration) * 100
+    this.selectedFile = event.target.files[0];
+    this.previewSnippet.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(this.selectedFile))
+    
+    this.previewSnippet.videoEl.onloadedmetadata = () => {
 
-    //   this.previewSnippet = {
-    //     file: this.selectedFile,
-    //     videostreamUrl: window.URL.createObjectURL(this.selectedFile),
-    //     user: "liam",
-    //     videoType: this.selectedFile.type,
-    //     timeStartPos: ((this.previewSliderRect.left - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100,
-    //     timeEndPos: ((this.previewSliderRect.right - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100,
-    //     durationWidth: (this.snippetVidEl.duration / this.tapestry.videoDiv.duration) * 100,
-    //   }
-    // }
+      this.previewSnippet = {
+        file: this.selectedFile,
+        videoEl:  document.getElementById("preview-snippet-videoEl") as HTMLVideoElement,
+        videoStreamUrl: this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(this.selectedFile)),
+        user: "liam",
+        currentTime: 0,
+        videoType: this.selectedFile.type,
+        timeStartPos: ((this.previewSliderRect.left - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100,
+        timeEndPos: ((this.previewSliderRect.right - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100,
+        durationWidth: (this.previewSnippet.videoEl.duration / this.tapestry.videoDiv.duration) * 100,
+        visible: true,
+      }
+    }
   }
 
   sectionSelect(sectionName: string) {
@@ -258,12 +260,15 @@ export class HomeComponent implements OnInit {
   setPreviewSnippet() {
     this.previewSnippet = {
       file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
-      videostreamUrl: "",
+      videoEl: document.getElementById("preview-snippet-videoEl") as HTMLVideoElement,
+      videoStreamUrl: "",
       user: "",
       videoType: "",
+      currentTime: 0,
       timeStartPos: 0,
       timeEndPos: 0,
       durationWidth: 0,
+      visible: false,
     }
   }
 
