@@ -3,7 +3,7 @@
         <div id="primary-container">
             <div id="video-player">
                 <video type='video/mp4' [attr.id]="'snippet-videoEl-' + snippet.id" *ngFor="let snippet of snippetPool" [src]="snippet.videoStreamUrl" [currentTime]="snippet.currentTime" [muted]="true" [hidden]="!snippet.visible" (click)="togglePlayPause()"></video>
-                <video type='video/mp4' id="tapestry-videoEl" [src]="tapestry.videoStreamUrl" [hidden]="!tapestry.visible" (timeupdate)="updateTimeElements()" (click)="togglePlayPause()"></video>
+                <video type='video/mp4' id="tapestry-videoEl" [src]="tapestry.videoStreamUrl" [hidden]="!tapestry.visible" (timeupdate)="updateTimeElements()" [currentTime]="tapestry.currentTime" (click)="togglePlayPause()"></video>
                 <div id="controls">
                     <div id="slider-container">
                         <div id="main-slider-container" (mousedown)="mouseDown($event)">
