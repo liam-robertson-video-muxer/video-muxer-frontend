@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SecurityContext } from '@angular/core';
 import { AppService } from '../app.service';
 import { Snippet } from '../models/Snippet.model';
 import { SnippetOut } from '../models/SnippetOut.model';
 import { SnippetPreview } from '../models/SnippetPreview.model';
 import { SnippetRaw } from '../models/SnippetRaw.model';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import { Tapestry } from '../models/Tapestry.model';
 
 @Component({
   selector: 'home',
@@ -34,41 +36,50 @@ export class HomeComponent implements OnInit {
   volumeHover = false
   showTapestryVidEl = true
   snippetLoadedId: number | null = null
+  tapestryVideoUrl!: SafeUrl
+  tapestry: Tapestry = {
+    videoDiv: document.getElementById("tapestry-videoEl") as HTMLVideoElement,
+    videoStreamUrl: "",
+    visible: true,
+  }
+
  
   constructor( 
-    private appService: AppService 
+    private appService: AppService,
+    private sanitizer:DomSanitizer
     ) {} 
    
   ngOnInit(): void { 
     this.setInitialVariables()     
     this.appService.getTapestry().subscribe((tapestry: Blob) => {
-      this.tapestryVidEl.src = window.URL.createObjectURL(tapestry);
-      
+      this.tapestry.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(tapestry))
+
       this.appService.getRawSnippets().subscribe((rawSnippetList: SnippetRaw[]) => {
-        this.snippetList = this.refineRawSnippets(rawSnippetList, this.tapestryVidEl.duration)
+        this.snippetList = this.refineRawSnippets(rawSnippetList, this.tapestryVidEl.duration)        
       })
     });  
-    this.tapestryVidEl.onloadedmetadata = () => {
-      this.snippetVidEl.onloadedmetadata = () => {
-        this.loading = false
-      }
-    }
   }
 
   refineRawSnippets(rawSnippetList: SnippetRaw[], tapestryDuration: number) {
     const snippetList: Snippet[] = []
-    rawSnippetList.map((rawSnippet: SnippetRaw) => {      
+    rawSnippetList.map((rawSnippet: SnippetRaw) => { 
+      const blobPart = new Blob([new Uint8Array(rawSnippet.videoStream)], {type: "application/octet-stream"})
+      const binaryData = [];
+      binaryData.push(blobPart); 
+
       const currSnippet: Snippet = {
         id: rawSnippet.id,
-        videoStream: rawSnippet.videoStream,
+        videoDiv: document.getElementById("snippet-videoEl-" + rawSnippet.id) as HTMLVideoElement,
+        videoStreamUrl: this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))),
         user: rawSnippet.user,
         videoType: rawSnippet.videoType,
         timeStartPos: (rawSnippet.timeStart / tapestryDuration) * 100,
         timeEndPos: (rawSnippet.timeEnd / tapestryDuration) * 100,
         durationWidth: (rawSnippet.duration / tapestryDuration) * 100,
+        currentTime: 0,
         upvote: rawSnippet.upvote,
         downvote: rawSnippet.downvote,
-        visible: true,
+        visible: false,
       }
       snippetList.push(currSnippet)
     })
@@ -86,7 +97,6 @@ export class HomeComponent implements OnInit {
     this.mainSliderContainer.addEventListener('dragstart', (e) => {
       e.preventDefault()
     })
-    this.snippetVidEl.muted = true
     mainSlider.style.width = ((this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100).toString() + "%"
     this.previewSnippet = {
       file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
@@ -101,7 +111,6 @@ export class HomeComponent implements OnInit {
 
   createSnippetFromFile(event: any) {
     this.selectedFile = event.target.files[0];   
-    this.snippetVidEl.src = window.URL.createObjectURL(this.selectedFile);
     this.snippetVidEl.muted = true
     this.snippetVidEl.onloadedmetadata = () => {
       
@@ -128,8 +137,9 @@ export class HomeComponent implements OnInit {
     this.showHideSnippets(tapestryTimePcnt)
     if (this.selectedFile != undefined) {
       if (tapestryTimePcnt >= this.previewSnippet.timeStartPos && tapestryTimePcnt <= this.previewSnippet.timeEndPos) {
-        this.snippetVidEl.src = (this.previewSnippet.videostreamUrl, "snippet-videoEl")
-        this.showSnippetVidEl = true
+        this.tapestry.visible = false
+        // this.snippetVidEl.src = (this.previewSnippet.videostreamUrl, "snippet-videoEl")
+        // this.showSnippetVidEl = true
       }
     }
   }
@@ -139,31 +149,21 @@ export class HomeComponent implements OnInit {
     if (this.snippetPool.length > 0) {
       if (this.snippetPool.some(isSnippetLoadedCheck)) {        
         this.snippetPool.map((snippet: Snippet) => {
-          if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {
-            console.log(this.snippetLoadedId);
-            
-            if (this.snippetLoadedId != snippet.id) {
-              const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
-              const binaryData = [];
-              binaryData.push(blobPart);          
-              this.showSnippetVidEl = true
-              this.snippetVidEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))
-              this.snippetVidEl.onloadedmetadata = () => {
-                this.snippetLoadedId = snippet.id
-                if (!this.tapestryVidEl.paused) {
-                  this.snippetVidEl.play()
-                }                
-              }
-            }
+          if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {            
+            snippet.visible = true
+            this.tapestry.visible = false
+          } else {
+            snippet.visible = false
+            this.tapestry.visible = true
           }
         })
       } else {
-        this.showSnippetVidEl = false
-        this.snippetLoadedId = null
+        this.snippetPool.map((snippet: Snippet) => snippet.visible = false)
+        this.tapestry.visible = true
       } 
     }  else {
-      this.showSnippetVidEl = false
-      this.snippetLoadedId = null
+      this.snippetPool.map((snippet: Snippet) => snippet.visible = false)
+      this.tapestry.visible = true
     } 
   }
 
@@ -175,12 +175,13 @@ export class HomeComponent implements OnInit {
     if (this.snippetPool.includes(snippet)) {
       this.snippetPool = this.snippetPool.filter(currSnippet => currSnippet != snippet)
     } else {
-      this.snippetPool.push(snippet)
-      this.showSnippetVidEl = true
-      var binaryData = [];
-      binaryData.push(snippet.videoStream);
-      this.snippetVidEl.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}))
+      this.snippetPool.push(snippet)      
+      snippet.videoDiv = document.getElementById("snippet-videoEl-1") as HTMLVideoElement
+      console.log(snippet);
+
     }
+    const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
+    this.showHideSnippets(tapestryTimePcnt)
   }
 
   previewSliderDrag() {
@@ -206,11 +207,38 @@ export class HomeComponent implements OnInit {
     const mouseClickPos = event.clientX - sliderContainerDiv.getBoundingClientRect().left    
     this.tapestryVidEl.currentTime = (mouseClickPos / sliderContainerWidth) * this.tapestryVidEl.duration;
     this.timeMinsSecs = new Date(this.tapestryVidEl.currentTime * 1000).toISOString().substring(14, 19)
+
+    const tapestryTimePcnt = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
+    const isSnippetLoadedCheck = (snippet: Snippet) => tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos
+    if (this.snippetPool.length > 0) {
+      if (this.snippetPool.some(isSnippetLoadedCheck)) {        
+        this.snippetPool.map((snippet: Snippet) => {
+          if (tapestryTimePcnt >= snippet.timeStartPos && tapestryTimePcnt <= snippet.timeEndPos) {            
+            console.log(snippet.currentTime);
+            console.log(snippet);
+            
+            snippet.currentTime = (mouseClickPos / snippet.durationWidth) * snippet.videoDiv.duration;            
+            
+            snippet.visible = true
+            this.tapestry.visible = false
+          } else {
+            snippet.visible = false
+            this.tapestry.visible = true
+          }
+        })
+      } else {
+        this.snippetPool.map((snippet: Snippet) => snippet.visible = false)
+        this.tapestry.visible = true
+      } 
+    }  else {
+      this.snippetPool.map((snippet: Snippet) => snippet.visible = false)
+      this.tapestry.visible = true
+    } 
   }
 
   togglePlayPause() {
     switch (this.pausePlay) {
-      case "play_arrow": 
+      case "play_arrow":       
         if (this.showSnippetVidEl) {
           this.snippetVidEl.play();
         } 
@@ -218,7 +246,7 @@ export class HomeComponent implements OnInit {
         this.pausePlay = "pause"
         break;
 
-      case "pause": 
+      case "pause":       
         if (this.showSnippetVidEl) {
           this.snippetVidEl.pause();
         } 
