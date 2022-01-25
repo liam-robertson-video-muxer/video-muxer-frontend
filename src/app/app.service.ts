@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { SnippetRaw } from './models/SnippetRaw.model';
 import { SnippetOut } from './models/SnippetOut.model';
+import { Snippet } from './models/Snippet.model';
+import { SnippetVideoStream } from './models/SnippetVideoStream.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,12 @@ export class AppService {
     return this.http.get("http://" + environment.env + "getTapestry", {responseType: "blob"});
   }
 
-  getRawSnippets(): Observable<SnippetRaw[]> {
-     return this.http.get<SnippetRaw[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
+  getSnippetsData(): Observable<Snippet[]> {
+     return this.http.get<Snippet[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
+  }
+
+  getSnippetVideoStreams(): Observable<SnippetVideoStream[]> {
+    return this.http.get<SnippetVideoStream[]>("http://" + environment.env + "getAllSnippetVideoStreams", {responseType: "json"})
   }
 
   uploadFile(snippet: SnippetOut): Observable<any> {
@@ -26,15 +31,3 @@ export class AppService {
     return this.http.post("http://" + environment.env + "updateAnimation", formData, )
   }
 }
-
-
-// getSnippets() { 
-//   this.appService.getSnippets().subscribe((snippetList: Snippet[]) => {
-//     snippetList.map((snippet: Snippet) => {
-//       const blobPart = new Blob([new Uint8Array(snippet.videoStream)], {type: "application/octet-stream"})
-//       const binaryData = [];
-//       binaryData.push(blobPart);
-//       this.tapestry.src = window.URL.createObjectURL(new Blob(binaryData, {type: "application/octet-stream"}));
-//     })
-//   });  
-// }
