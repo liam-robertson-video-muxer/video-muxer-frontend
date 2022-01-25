@@ -70,6 +70,32 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  mouseDown(event: MouseEvent) {
+    this.mousedown = true
+    this.jumpToTimeClick(event)
+  }
+
+  jumpToTimeClick(mouseClick: MouseEvent) {
+    const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos
+    const isPreviewSnippetActiveCheck = this.tapestry.currentTimePct >= this.previewSnippet.timeStartPos && this.tapestry.currentTimePct <= this.previewSnippet.timeEndPos
+    const isSnippetLoaded = this.snippetPool.length > 0 || this.selectedFile != null
+    const isSnippetActive = this.snippetPool.some(isSnippetActiveCheck) || isPreviewSnippetActiveCheck
+    
+    if (isSnippetLoaded) {
+      if (isSnippetActive) {
+        this.updateActiveSnippetList()
+        this.showHideSnippetsByClick(mouseClick)
+        const sliderContainerRect: DOMRect = (document.getElementById("slider-container") as HTMLElement).getBoundingClientRect() as DOMRect;
+        this.tapestry.currentTime = ((mouseClick.clientX - sliderContainerRect.left) / sliderContainerRect.width) * this.tapestry.videoDiv.duration;
+        this.tapestry.visible = false
+      } else {
+        this.tapestry.visible = true 
+      }
+    } else {
+      this.tapestry.visible = true
+    }
+  }
+
   togglePlayPause() {
     switch (this.pausePlay) {
       case "play_arrow":       
@@ -173,13 +199,7 @@ export class HomeComponent implements OnInit {
     this.tapestry.currentTime = (xPosPcnt * this.tapestry.videoDiv.duration) / 100
   }
 
-  jumpToTimeClick(mouseClick: MouseEvent) {
-    this.findActiveSnippets()
-    this.showHideSnippetsByClick(mouseClick)
-    const sliderContainerRect: DOMRect = (document.getElementById("slider-container") as HTMLElement).getBoundingClientRect() as DOMRect;
-    this.tapestry.currentTime = ((mouseClick.clientX - sliderContainerRect.left) / sliderContainerRect.width) * this.tapestry.videoDiv.duration;
-    this.tapestry.visible = false
-  }
+  
 
   createSnippetFromFile(event: any) {    
     this.selectedFile = event.target.files[0] as File;
@@ -219,11 +239,7 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  mouseDown(event: MouseEvent) {
-    this.mousedown = true
-    this.jumpToTimeClick(event)
-  }
-
+ 
   mainSliderDragged(event: MouseEvent) {    
     if (this.mousedown) {
       this.jumpToTimeClick(event)
