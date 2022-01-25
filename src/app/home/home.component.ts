@@ -19,17 +19,18 @@ export class HomeComponent implements OnInit {
   volumeHover = false
   interval!: number;
   mousedown!: boolean;
-  selectedFile!: File;
+  selectedFile: File | null = null
 
   snippetList!: Snippet[];
   snippetPool: Snippet[] = []
   activeSnippetList: Snippet[] = []
   sliderContainerRect!: DOMRect;
-  previewSliderRect!: DOMRect;
+  previewSliderWidth: number = 0;
   snippetOut!: SnippetOut;
   previewSnippet!: SnippetPreview;
   tapestry!: Tapestry;
   tapestryVidEl!: HTMLVideoElement;
+  previewSliderDiv!: HTMLElement;
 
   constructor( 
     private appService: AppService,
@@ -48,17 +49,24 @@ export class HomeComponent implements OnInit {
   }
 
   updateTimeElements() {
+    this.timeMinsSecs = new Date(this.tapestry.videoDiv.currentTime * 1000).toISOString().substring(14, 19)  
     this.tapestry.currentTimePct = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
-    this.timeMinsSecs = new Date(this.tapestry.videoDiv.currentTime * 1000).toISOString().substring(14, 19)
-    this.findActiveSnippets()
-    this.showHideSnippets()    
+    const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos
+    const isPreviewSnippetActiveCheck = this.tapestry.currentTimePct >= this.previewSnippet.timeStartPos && this.tapestry.currentTimePct <= this.previewSnippet.timeEndPos
+    const isSnippetLoaded = this.snippetPool.length > 0 || this.selectedFile != null
+    const isSnippetActive = this.snippetPool.some(isSnippetActiveCheck) || isPreviewSnippetActiveCheck
     
-    if (this.selectedFile != undefined) {
-      if (this.tapestry.currentTimePct >= this.previewSnippet.timeStartPos && this.tapestry.currentTimePct <= this.previewSnippet.timeEndPos) {
+    if (isSnippetLoaded) {
+      if (isSnippetActive) {
+        this.updateActiveSnippetList()
+        this.showActiveSnippets()
+        this.showActivePreviewSnippets()
         this.tapestry.visible = false
-        // this.snippetVidEl.src = (this.previewSnippet.videostreamUrl, "snippet-videoEl")
-        // this.showSnippetVidEl = true
+      } else {
+        this.tapestry.visible = true 
       }
+    } else {
+      this.tapestry.visible = true
     }
   }
 
@@ -78,24 +86,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  showHideSnippets() {
-    const inactiveSnippetList = this.snippetPool.filter((snippet: Snippet) => !this.activeSnippetList.includes(snippet)) 
-    inactiveSnippetList.map((snippet: Snippet) => snippet.visible = false)
-    if (this.activeSnippetList.length == 0) {
-      this.tapestry.visible = true
-    } else {
-      this.activeSnippetList.map((snippet: Snippet) => {
-        snippet.visible = true;
-        snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement  
-        if (snippet.videoDiv != null) {
-          snippet.videoDiv.play()      
-          this.tapestry.visible = false
-        }
-      })
-    }
-  }
-
-  showHideSnippetsByClick(mouseClick: MouseEvent) {    
+  showHideSnippetsByClick(mouseClick: MouseEvent) {
     this.activeSnippetList.map((snippet: Snippet) => {
       const snippetSliderRect: DOMRect = (document.getElementById("snippet-pool-el-" + snippet.id) as HTMLVideoElement).getBoundingClientRect() as DOMRect
       const mouseClickPosSnippet = ((mouseClick.clientX - snippetSliderRect.left) / snippetSliderRect.width) * 100
@@ -107,19 +98,49 @@ export class HomeComponent implements OnInit {
     })
   }
 
+  updateActiveSnippetList() {
+    const outputList: Snippet[] = []
+    this.snippetPool.map((snippet: Snippet) => {
+      if (this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos) {
+        outputList.push(snippet)
+      }
+    })
+    this.activeSnippetList = outputList
+  }
+
+  showActiveSnippets() {
+    this.activeSnippetList.map((snippet: Snippet) => {
+      snippet.visible = true;
+      snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement  
+      if (!this.tapestry.videoDiv.paused) {
+        snippet.videoDiv.play()
+      }
+    })
+  }
+
   findActiveSnippets() {
     const outputList: Snippet[] = []
     if (this.snippetPool.length > 0) {
-      const isSnippetLoadedCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos
-      if (this.snippetPool.some(isSnippetLoadedCheck)) {        
+      const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos
+      if (this.snippetPool.some(isSnippetActiveCheck)) {
         this.snippetPool.map((snippet: Snippet) => {
-          if (this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos) {      
-            outputList.push(snippet)  
+          if (this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos) {
+            outputList.push(snippet)
           }
         })
       }
-    }
+    } 
     this.activeSnippetList = outputList
+  }
+
+  showActivePreviewSnippets() {
+    if (this.previewSnippet.file != null) {
+      if (this.tapestry.currentTimePct >= this.previewSnippet.timeStartPos && this.tapestry.currentTimePct <= this.previewSnippet.timeEndPos) {
+        this.previewSnippet.visible = true
+      } else {
+        this.previewSnippet.visible = false
+      }
+    } 
   }
 
   loadSnippetToPool(snippet: Snippet) {   
@@ -160,21 +181,25 @@ export class HomeComponent implements OnInit {
     this.tapestry.visible = false
   }
 
-  createSnippetFromFile(event: any) {
-    this.selectedFile = event.target.files[0];
+  createSnippetFromFile(event: any) {    
+    this.selectedFile = event.target.files[0] as File;
     this.previewSnippet.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(this.selectedFile))
-    
-    this.previewSnippet.videoEl.onloadedmetadata = () => {
 
+    this.previewSnippet.videoEl.onloadedmetadata = () => {
+      this.previewSliderWidth =   (this.previewSnippet.videoEl.duration / this.tapestry.videoDiv.duration) * 100
+      this.previewSnippet.sliderRect = (document.getElementById("preview-slider-thumb") as HTMLElement).getBoundingClientRect()
+      console.log();
+      
       this.previewSnippet = {
-        file: this.selectedFile,
+        file: this.selectedFile as File,
         videoEl:  document.getElementById("preview-snippet-videoEl") as HTMLVideoElement,
-        videoStreamUrl: this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(this.selectedFile)),
+        sliderRect:  (document.getElementById("preview-snippet-videoEl") as HTMLVideoElement).getBoundingClientRect(),
+        videoStreamUrl: this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(this.selectedFile as File)),
         user: "liam",
         currentTime: 0,
-        videoType: this.selectedFile.type,
-        timeStartPos: ((this.previewSliderRect.left - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100,
-        timeEndPos: ((this.previewSliderRect.right - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100,
+        videoType: this.selectedFile!.type,
+        timeStartPos: ((this.previewSliderDiv.getBoundingClientRect().left - this.previewSnippet.videoEl.getBoundingClientRect().left) / this.previewSnippet.videoEl.getBoundingClientRect().width) * 100,
+        timeEndPos: ((this.previewSliderDiv.getBoundingClientRect().right - this.previewSnippet.videoEl.getBoundingClientRect().left) / this.previewSnippet.videoEl.getBoundingClientRect().width) * 100,
         durationWidth: (this.previewSnippet.videoEl.duration / this.tapestry.videoDiv.duration) * 100,
         visible: true,
       }
@@ -206,9 +231,9 @@ export class HomeComponent implements OnInit {
   }
 
   previewSliderDrag() {
-    this.previewSnippet.timeStartPos = ((this.previewSliderRect.left - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100
-    this.previewSnippet.timeEndPos = ((this.previewSliderRect.right - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100
-    this.previewSnippet.durationWidth = (this.previewSliderRect.width / this.sliderContainerRect.width) * 100
+    this.previewSnippet.timeStartPos = ((this.previewSnippet.sliderRect.left - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100
+    this.previewSnippet.timeEndPos = ((this.previewSnippet.sliderRect.right - this.sliderContainerRect.left) / this.sliderContainerRect.width) * 100
+    this.previewSnippet.durationWidth = (this.previewSnippet.sliderRect.width / this.sliderContainerRect.width) * 100
   }
 
   pausePlaySnippet() {
@@ -223,7 +248,7 @@ export class HomeComponent implements OnInit {
 
   uploadFile() {
     this.snippetOut = {
-      file: this.previewSnippet.file,
+      file: this.previewSnippet.file as File,
       user: "liam",
       videoType: this.previewSnippet.videoType,
       timeStart: (this.previewSnippet.timeStartPos / 100) * this.tapestry.videoDiv.duration,
@@ -258,9 +283,11 @@ export class HomeComponent implements OnInit {
   }
 
   setPreviewSnippet() {
+    this.previewSliderDiv = document.getElementById("preview-slider-thumb") as HTMLElement
     this.previewSnippet = {
       file: new File(new Array<Blob>(), "Mock.zip", { type: 'application/zip' }),
       videoEl: document.getElementById("preview-snippet-videoEl") as HTMLVideoElement,
+      sliderRect: (document.getElementById("preview-snippet-videoEl") as HTMLVideoElement).getBoundingClientRect(),
       videoStreamUrl: "",
       user: "",
       videoType: "",

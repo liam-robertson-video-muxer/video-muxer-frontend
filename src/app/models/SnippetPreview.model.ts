@@ -1,8 +1,9 @@
 import { SafeUrl } from "@angular/platform-browser";
 
 export interface SnippetPreview {
-    file: File;
+    file: File | null;
     videoEl: HTMLVideoElement;
+    sliderRect: DOMRect;
     videoStreamUrl: SafeUrl;
     user: string;
     videoType: string;

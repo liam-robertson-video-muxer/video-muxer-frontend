@@ -10,7 +10,7 @@
                         <div id="main-slider-container" (mousedown)="mouseDown($event)">
                             <div id="main-slider" [style.width.%]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100"></div>
                         </div>
-                        <div id="preview-slider-thumb" [style.width.%]="previewSnippet.durationWidth" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
+                        <div id="preview-slider-thumb" [style.width.%]="previewSliderWidth" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
                     </div>
                     <div id="snippet-pool-container">
                         <div class="snippet-pool-el" [attr.id]="'snippet-pool-el-' + snippet.id" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" (click)="loadSnippetToPool(snippet)"></div>
