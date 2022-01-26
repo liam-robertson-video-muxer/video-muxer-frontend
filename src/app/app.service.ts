@@ -22,7 +22,7 @@ export class AppService {
   }
 
   getSnippetVideoStreams(): Observable<SnippetVideoStream[]> {
-    return this.http.get<SnippetVideoStream[]>("http://" + environment.env + "getAllSnippetVideoStreams", {responseType: "json"})
+    return this.http.get<SnippetVideoStream[]>("http://" + environment.env + "getSnippetsVideoStream", {responseType: "json"})
   }
 
   uploadFile(snippet: SnippetOut): Observable<any> {
