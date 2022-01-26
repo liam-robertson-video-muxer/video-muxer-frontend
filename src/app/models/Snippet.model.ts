@@ -5,9 +5,9 @@ export interface Snippet {
     videoDiv: HTMLVideoElement;
     videoStreamUrl: SafeUrl;
     user: string;
-    timeStartPos: number;
-    timeEndPos: number;
-    durationWidth: number;
+    timeStartPct: number;
+    timeEndPct: number;
+    durationPct: number;
     currentTime: number;
     upvote: number;
     downvote: number;

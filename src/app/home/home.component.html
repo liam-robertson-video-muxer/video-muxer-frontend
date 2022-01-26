@@ -13,7 +13,7 @@
                         <div id="preview-slider-thumb" [style.width.%]="previewSliderWidth" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
                     </div>
                     <div id="snippet-pool-container">
-                        <div class="snippet-pool-el" [attr.id]="'snippet-pool-el-' + snippet.id" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" (click)="loadSnippetToPool(snippet)"></div>
+                        <div class="snippet-pool-el" [attr.id]="'snippet-pool-el-' + snippet.id" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationPct" [style.margin-left.%]="snippet.timeStartPct" (click)="loadSnippetToPool(snippet)"></div>
                     </div>
                     <div id="play-container">
                         <mat-icon (click)="togglePlayPause()" id="play-icon">{{pausePlay}}</mat-icon>
@@ -51,7 +51,7 @@
                         </div>
                     </div>
                 <div id="browse-section" *ngIf="sectionHide == 'browse'">
-                    <div *ngFor="let snippet of snippetList" class="snippet-timeline-bar" [attr.id]="'snippet-timeline-' + snippet.id" [style.width.%]="snippet.durationWidth" [style.margin-left.%]="snippet.timeStartPos" (click)="loadSnippetToPool(snippet)"
+                    <div *ngFor="let snippet of snippetList" class="snippet-timeline-bar" [attr.id]="'snippet-timeline-' + snippet.id" [style.width.%]="snippet.durationPct" [style.margin-left.%]="snippet.timeStartPct" (click)="loadSnippetToPool(snippet)"
                     ></div>
                 </div>
                 <div *ngIf="sectionHide == 'comments'"></div>

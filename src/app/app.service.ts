@@ -17,8 +17,8 @@ export class AppService {
     return this.http.get("http://" + environment.env + "getTapestry", {responseType: "blob"});
   }
 
-  getSnippetsData(): Observable<Snippet[]> {
-     return this.http.get<Snippet[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
+  getSnippetsMetadata(): Observable<Snippet[]> {
+     return this.http.get<Snippet[]>("http://" + environment.env + "getSnippetsMetadata", {responseType: "json"})
   }
 
   getSnippetVideoStreams(): Observable<SnippetVideoStream[]> {

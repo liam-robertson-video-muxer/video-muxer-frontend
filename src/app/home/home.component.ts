@@ -19,6 +19,8 @@
     volumeHover = false
     interval!: number;
     mousedown!: boolean;
+    tapestryLoading: boolean = false
+    snippetsLoading: boolean = false
     selectedFile: File | null = null
 
     snippetList!: Snippet[];
@@ -37,12 +39,15 @@
       private sanitizer: DomSanitizer
       ) {} 
     
-    ngOnInit(): void { 
+    ngOnInit(): void {
+      this.tapestryLoading = true
+      this.snippetsLoading = true
       this.setInitialVariables()     
       this.appService.getTapestry().subscribe((tapestry: Blob) => {
         this.tapestry.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(tapestry))
+        this.tapestryLoading = false
 
-        this.appService.getSnippetsData().subscribe((snippetList: Snippet[]) => {
+        this.appService.getSnippetsMetadata().subscribe((snippetList: Snippet[]) => {
           this.snippetList = snippetList
           this.appService.getSnippetVideoStreams().subscribe((snippetVideoStreams: SnippetVideoStream[]) => {
             snippetVideoStreams.map((snippetVideoStream: SnippetVideoStream) => {
@@ -53,6 +58,7 @@
               })
             })
           })
+          this.snippetsLoading = false
         })
       })
     }
@@ -60,7 +66,7 @@
     updateTimeElements() {
       this.videoClock = new Date(this.tapestry.videoDiv.currentTime * 1000).toISOString().substring(14, 19)  
       this.tapestry.currentTimePct = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
-      const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos
+      const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPct && this.tapestry.currentTimePct <= snippet.timeEndPct
       const isPreviewSnippetActiveCheck = this.tapestry.currentTimePct >= this.previewSnippet.timeStartPos && this.tapestry.currentTimePct <= this.previewSnippet.timeEndPos
       const isSnippetLoaded = this.snippetPool.length > 0 || this.selectedFile != null
       const isSnippetActive = this.snippetPool.some(isSnippetActiveCheck) || isPreviewSnippetActiveCheck
@@ -86,7 +92,7 @@
       const sliderContainerRect: DOMRect = (document.getElementById("slider-container") as HTMLElement).getBoundingClientRect() as DOMRect;
       this.tapestry.currentTime = ((mouseClick.clientX - sliderContainerRect.left) / sliderContainerRect.width) * this.tapestry.videoDiv.duration;
       this.tapestry.currentTimePct = (this.tapestryVidEl.currentTime / this.tapestryVidEl.duration) * 100
-      const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos
+      const isSnippetActiveCheck = (snippet: Snippet) => this.tapestry.currentTimePct >= snippet.timeStartPct && this.tapestry.currentTimePct <= snippet.timeEndPct
       const isPreviewSnippetActiveCheck = this.tapestry.currentTimePct >= this.previewSnippet.timeStartPos && this.tapestry.currentTimePct <= this.previewSnippet.timeEndPos
       const isSnippetLoaded = this.snippetPool.length > 0 || this.selectedFile != null
       const isSnippetActive = this.snippetPool.some(isSnippetActiveCheck) || isPreviewSnippetActiveCheck
@@ -186,7 +192,7 @@
     updateActiveSnippetList() {
       const outputList: Snippet[] = []
       this.snippetPool.map((snippet: Snippet) => {
-        if (this.tapestry.currentTimePct >= snippet.timeStartPos && this.tapestry.currentTimePct <= snippet.timeEndPos) {
+        if (this.tapestry.currentTimePct >= snippet.timeStartPct && this.tapestry.currentTimePct <= snippet.timeEndPct) {
           outputList.push(snippet)
         }
       })
