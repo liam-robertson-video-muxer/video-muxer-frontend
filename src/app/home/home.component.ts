@@ -38,29 +38,22 @@
       private appService: AppService,
       private sanitizer: DomSanitizer
       ) {} 
+
+    // snippet.videoStreamUrl = window.URL.createObjectURL(new Blob([snippetVideoStream.videoStream], {type: "application/octet-stream"}))
+    // snippet.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(new Blob([snippetVideoStream.videoStream], {type: "application/octet-stream"})))
     
     ngOnInit(): void {
       this.tapestryLoading = true
       this.snippetsLoading = true
-      this.setInitialVariables()     
-      this.appService.getTapestry().subscribe((tapestry: Blob) => {
-        this.tapestry.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(tapestry))
-        this.tapestryLoading = false
-
-        this.appService.getSnippetsMetadata().subscribe((snippetList: Snippet[]) => {
+      this.appService.getTapestry().subscribe((tapestry: Blob) => {      
+        console.log(tapestry);
+        
+        this.tapestry.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(tapestry))  
+        this.appService.getAllSnippets().subscribe((snippetList: Snippet[]) => {
           this.snippetList = snippetList
-          this.appService.getSnippetVideoStreams().subscribe((snippetVideoStreams: SnippetVideoStream[]) => {
-            snippetVideoStreams.map((snippetVideoStream: SnippetVideoStream) => {
-              this.snippetList.map((snippet: Snippet) => {
-                if (snippet.id = snippetVideoStream.id) {
-                  snippet.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(snippetVideoStream.videoStreamUrl))
-                }
-              })
-            })
           })
-          this.snippetsLoading = false
         })
-      })
+      this.setInitialVariables()
     }
 
     updateTimeElements() {
@@ -140,7 +133,13 @@
         this.snippetPool = this.snippetPool.filter(currSnippet => currSnippet != snippet)
       } else {
         this.snippetPool.push(snippet)      
-        snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement
+        console.log(snippet);
+        // const snippetVideoEl = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement
+        
+        // snippetVideoEl.src = window.URL.createObjectURL(new Blob([snippet.videoStream], {type: "application/octet-stream"}))
+    // snippet.videoStreamUrl = window.URL.createObjectURL(new Blob([snippetVideoStream.videoStream], {type: "application/octet-stream"}))
+    // snippet.videoStreamUrl = this.sanitizer.bypassSecurityTrustUrl(window.URL.createObjectURL(new Blob([snippetVideoStream.videoStream], {type: "application/octet-stream"})))
+        
         this.interval = window.setInterval(() => (this.setSnippetTime(snippet), 1000))
       }
     }
@@ -202,6 +201,13 @@
     showActiveSnippet(snippet: Snippet) {
       snippet.visible = true;
       snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement  
+      console.log("snippet-videoEl-" + snippet.id);
+      
+      console.log(snippet.videoDiv);
+      console.log(!this.tapestry.videoDiv.paused);
+      console.log(snippet.videoDiv.paused);
+
+      
       if (!this.tapestry.videoDiv.paused && snippet.videoDiv.paused) {
         snippet.videoDiv.play()
       }
@@ -221,7 +227,12 @@
       if (document.getElementById("snippet-pool-el-" + snippet.id) != null && document.getElementById("snippet-videoEl-" + snippet.id) != null) {
         const snippetSlider = document.getElementById("snippet-pool-el-" + snippet.id) as HTMLElement
         const tapestryVid = document.getElementById("tapestry-videoEl") as HTMLVideoElement
-        snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement
+        snippet.videoDiv = document.getElementById("snippet-videoEl-" + snippet.id) as HTMLVideoElement        
+        
+    // snippet.videoDiv.src = window.URL.createObjectURL(new Blob([snippet.videoStream], {type: "application/octet-stream"}))
+    console.log((window.URL.createObjectURL(snippet.videoStream)));
+    
+    snippet.videoDiv.src = (window.URL.createObjectURL(snippet.videoStream))
         const snippetTimePos = (((this.tapestry.currentTimePct * tapestryVid.getBoundingClientRect().width) - snippetSlider.getBoundingClientRect().left) / snippetSlider.getBoundingClientRect().width)
         snippet.videoDiv.onloadedmetadata = () => {
           snippet.currentTime = (snippetTimePos * snippet.videoDiv.duration) / 100;

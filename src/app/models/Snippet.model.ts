@@ -3,7 +3,7 @@ import { SafeUrl } from "@angular/platform-browser";
 export interface Snippet {
     id: number;
     videoDiv: HTMLVideoElement;
-    videoStreamUrl: SafeUrl;
+    videoStream: Blob;
     user: string;
     timeStartPct: number;
     timeEndPct: number;
