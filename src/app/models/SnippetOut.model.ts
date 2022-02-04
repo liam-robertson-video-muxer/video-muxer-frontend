@@ -1,5 +1,7 @@
+import { SafeUrl } from "@angular/platform-browser";
+
 export interface SnippetOut {
-    file: File;
+    videoStream: SafeUrl;
     user: string;
     videoType: string;
     timeStart: number;
