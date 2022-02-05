@@ -4,7 +4,6 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SnippetOut } from './models/SnippetOut.model';
 import { Snippet } from './models/Snippet.model';
-import { SnippetVideoStream } from './models/SnippetVideoStream.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,9 +20,16 @@ export class AppService {
      return this.http.get<Snippet[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
   }
 
-  uploadFile(snippet: SnippetOut): Observable<SnippetOut> {   
+  uploadFile(snippet: SnippetOut): Observable<any> {   
     console.log("http://" + environment.env + "addSnippetToBank");
-    return this.http.post<SnippetOut>("http://" + environment.env + "addSnippetToBank", snippet, ).pipe(
+    const formData = new FormData()
+    formData.append('user', snippet.user); 
+    formData.append('videoType', snippet.videoType);
+    formData.append('videoStream', snippet.videoStream);
+    formData.append('timeStart', snippet.timeStart.toString());
+    formData.append('timeEnd', snippet.timeEnd.toString());
+    formData.append('duration', snippet.duration.toString());
+    return this.http.post("http://" + environment.env + "addSnippetToBank", formData).pipe(
       catchError(this.errorHandler)
     );
   }

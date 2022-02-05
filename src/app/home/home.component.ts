@@ -274,16 +274,33 @@
       })
     }
 
-    uploadFile() {
+    async uploadFile() {
       console.log(this.previewSnippet.file);
       console.log(this.previewSnippet.videoStreamUrl);
       console.log(this.previewSnippet);
       console.log(this.tapestry.videoDiv.duration);
 
+      // const mData = JSON.stringify(modelData);
+      // const formData = new FormData();
+      // formData.append('data', mData);
+
       if (this.previewSnippet.file != null) {
+        // const videoData = new FormData()
+        // videoData.append('video stream', this.previewSnippet.file, this.previewSnippet.file.name);
+        // console.log(videoData);
+        // console.log(this.previewSnippet.file);
+      //   const fileReader = new FileReader();
+      //   let array = []
+      //   fileReader.onload = function() {
+      //     array = this.result;
+      // };
+      //   fileReader.readAsArrayBuffer(this.previewSnippet.file);
+        // await new Response(this.previewSnippet.file).arrayBuffer()
+        console.log(new Blob([this.previewSnippet.file as Blob], {type: "application/octet-stream"}));
+        
         this.snippetOut = {
-          videoStream: window.URL.createObjectURL(this.previewSnippet.file),
-          user: "liam",
+          videoStream: this.previewSnippet.file as Blob,
+          user: "system",
           videoType: this.previewSnippet.videoType,
           timeStart: (this.previewSnippet.timeStartPos / 100) * this.tapestry.videoDiv.duration,
           timeEnd: (this.previewSnippet.timeEndPos / 100) * this.tapestry.videoDiv.duration,
