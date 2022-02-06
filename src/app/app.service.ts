@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SnippetOut } from './models/SnippetOut.model';
 import { Snippet } from './models/Snippet.model';
@@ -17,7 +17,27 @@ export class AppService {
   }
 
   getAllSnippets(): Observable<Snippet[]> {
-     return this.http.get<Snippet[]>("http://" + environment.env + "getAllSnippets", {responseType: "json"})
+    const tapestryVidEl = document.getElementById("tapestry-videoEl") as HTMLVideoElement
+     return this.http.get("http://" + environment.env + "getAllSnippets", { responseType: "json" })
+      .pipe(map((snippetRawList: any) => {        
+        const snippetList: Snippet[] = snippetRawList.map((snippetIn: any) => {
+          const snippet: Snippet = {
+            id: snippetIn.id, 
+            videoDiv: document.getElementById("snippet-videoEl-" + snippetIn.id) as HTMLVideoElement,
+            videoStream: snippetIn.videoStream,
+            user: snippetIn.user,
+            timeStartPct: (snippetIn.timeStart / tapestryVidEl.duration) * 100,
+            timeEndPct: (snippetIn.timeEnd / tapestryVidEl.duration) * 100,
+            durationPct: (snippetIn.duration / tapestryVidEl.duration) * 100,
+            currentTime: 0,
+            upvote: snippetIn.upvote,
+            downvote: snippetIn.downvote,
+            visible: false
+          }          
+          return snippet
+        })        
+        return snippetList
+      }))
   }
 
   uploadFile(snippet: SnippetOut): Observable<any> {   
