@@ -1,16 +1,16 @@
-<div id="entire-page-container" (mouseup)="this.mousedown=false" (mousemove)="mainSliderDragged($event)">
+<div id="entire-page-container" (mouseup)="this.mousedown=false" (mousemove)="mainSliderDragged($event)" [hidden]="uploadLoading">
     <div id="margin-container">
         <div id="primary-container">
             <div id="video-player">
-                <video type='video/mp4' [attr.id]="'snippet-videoEl-' + snippet.id" *ngFor="let snippet of snippetPool" [src]="snippet.videoStream" [currentTime]="snippet.currentTime" [muted]="true" [hidden]="!snippet.visible" (click)="togglePlayPause()"></video>
-                <video type='video/mp4' id="preview-snippet-videoEl" [src]="previewSnippet.videoStreamUrl" [hidden]="!previewSnippet.visible" [currentTime]="previewSnippet.currentTime" [muted]="true" (click)="togglePlayPause()"></video>
+                <video type='video/mp4' [attr.id]="'snippet-videoEl-' + snippet.id" *ngFor="let snippet of snippetPool" [src]="snippet.videoStreamUrl" [currentTime]="snippet.currentTime" [muted]="true" [hidden]="!snippet.visible" (click)="togglePlayPause()"></video>
+                <video type='video/mp4' id="snippet-videoEl-preview" [src]="previewSnippet.videoStreamUrl" [hidden]="!previewSnippet.visible" [currentTime]="previewSnippet.currentTime" [muted]="true" (click)="togglePlayPause()"></video>
                 <video type='video/mp4' id="tapestry-videoEl" [src]="tapestry.videoStreamUrl" [hidden]="!tapestry.visible" (timeupdate)="updateTimeElements()" [currentTime]="tapestry.currentTime" (click)="togglePlayPause()"></video>
                 <div id="controls">
                     <div id="slider-container">
                         <div id="main-slider-container" (mousedown)="mouseDown($event)">
                             <div id="main-slider" [style.width.%]="(tapestryVidEl.currentTime / tapestryVidEl.duration) * 100"></div>
                         </div>
-                        <div id="preview-slider-thumb" [style.width.%]="previewSliderWidth" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
+                        <div id="preview-slider-thumb" [style.width.%]="this.previewSnippet.durationPct" (cdkDragMoved)="previewSliderDrag()" cdkDragBoundary="#slider-container" cdkDragLockAxis="x" cdkDrag></div>
                     </div>
                     <div id="snippet-pool-container">
                         <div class="snippet-pool-el" [attr.id]="'snippet-pool-el-' + snippet.id" *ngFor="let snippet of snippetPool" [style.width.%]="snippet.durationPct" [style.margin-left.%]="snippet.timeStartPct" (click)="loadSnippetToPool(snippet)"></div>
@@ -29,8 +29,8 @@
             <div id="main-sections-container">
                 <div class="sections-container">
                     <div class="section-button" id="upload-button" (click)="sectionSelect('upload')">Upload</div>
-                    <div class="section-button" id="browse-button" (click)="sectionSelect('browse')">Browse</div>
-                    <div class="section-button" id="comments-button" (click)="sectionSelect('comments')">Comments</div>
+                    <!-- <div class="section-button" id="browse-button" (click)="sectionSelect('browse')">Browse</div> -->
+                    <!-- <div class="section-button" id="comments-button" (click)="sectionSelect('comments')">Comments</div> -->
                 </div>  
                 <hr>  
                 <div *ngIf="sectionHide == 'upload'">
@@ -59,3 +59,7 @@
         </div>
     </div>  
 </div>
+<h1 id="loading" *ngIf="uploadLoading">
+    {{loadingText}}
+    <mat-spinner></mat-spinner>
+</h1>

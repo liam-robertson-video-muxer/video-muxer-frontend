@@ -6,7 +6,7 @@ export interface SnippetPreview {
     sliderRect: DOMRect;
     videoStreamUrl: SafeUrl;
     user: string;
-    videoType: string;
+    videoName: string;
     currentTime: number;
     timeStartPos: number;
     timeEndPos: number;
