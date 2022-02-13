@@ -16,7 +16,8 @@ export class AppService {
     private sanitizer: DomSanitizer) {}
 
   getTapestry(): Observable<Blob> {
-    return this.http.get("http://" + environment.env + "getTapestry", {responseType: "blob"});
+    return this.http.get("http://" + environment.env + "getTapestry", {responseType: "blob"})
+    .pipe(catchError(this.errorHandler));
   }
 
   getAllSnippetsMetadata(): Observable<Snippet[]> {
@@ -41,6 +42,7 @@ export class AppService {
       return snippetList
     }))        
     return snippetMetadata
+    .pipe(catchError(this.errorHandler));
   }
 
   getAllSnippetsVideoStreams(snippetList: Snippet[]): void {
@@ -51,7 +53,7 @@ export class AppService {
     })
   }
 
-  uploadFile(snippet: SnippetOut): Observable<string> {   
+  uploadFile(snippet: SnippetOut) {   
     const formData = new FormData()
     formData.append('user', snippet.user); 
     formData.append('videoName', snippet.videoName);
@@ -59,14 +61,13 @@ export class AppService {
     formData.append('timeStart', snippet.timeStart.toString());
     formData.append('timeEnd', snippet.timeEnd.toString());
     formData.append('duration', snippet.duration.toString());
-    return this.http.post<string>("http://" + environment.env + "addSnippetToTapestry", formData)
+    return this.http.post("http://" + environment.env + "addSnippetToTapestry", formData)
     .pipe(catchError(this.errorHandler));
   }
 
   errorHandler(error: HttpErrorResponse) {
-    console.log(error);
-    
-    alert(error.error)
+    alert(error.error.error)
+    window.location.reload();
     return throwError(() => error);
   }
 }

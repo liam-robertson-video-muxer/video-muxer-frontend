@@ -269,10 +269,10 @@
           timeEnd: (this.previewSnippet.timeEndPct / 100) * this.tapestry.videoDiv.duration,
           duration: (this.previewSnippet.durationPct / 100) * this.tapestry.videoDiv.duration,
         }
+        this.uploadLoading = true
         this.appService.uploadFile(this.snippetOut).subscribe(response => {
-          this.uploadLoading = true
-          console.log(response)
-          this.uploadLoading = false
+          window.location.reload();
+          alert(response)
         })
       }
     }
